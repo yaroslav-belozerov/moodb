@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_anxious">Тревожный</string>
+    <string name="mood_uncomfortable">Некомфортный</string>
+    <string name="mood_sad">Грустный</string>
+    <string name="mood_depressed">Депрессивный</string>
+    <string name="mood_chill">Расслабленный</string>
+    <string name="mood_calm">Спокойный</string>
+    <string name="mood_bored">Скучный</string>
+    <string name="mood_numb">Безэмоциональный</string>
+    <string name="mood_grateful">Благодарный</string>
+    <string name="mood_happy">Счастливый</string>
+    <string name="mood_excited">Радостный</string>
+    <string name="mood_hopeful">Многообещающий</string>
+    <string name="mood_confused">Спутанный</string>
+    <string name="mood_annoyed">Раздражённый</string>
+    <string name="mood_angry">Злобный</string>
+    <string name="mood_outraged">Яростный</string>
+    <string name="cat_sad">Грусть</string>
+    <string name="cat_neutral">Без эмоции</string>
+    <string name="cat_happy">Счастье</string>
+    <string name="cat_angry">Злость</string>
+    <string name="welcometo">Добро пожаловать в</string>
+    <string name="language">Язык</string>
+    <string name="next">Далее</string>
+    <string name="back">Назад</string>
+    <string name="edit_mood_types">Изменить эмоции</string>
+    <string name="cat_energetic">Энергичность</string>
+    <string name="theme_apple">Apple</string>
+    <string name="theme_simple">Простой</string>
+    <string name="icon_theme">Стиль иконок</string>
+    <string name="complete">Готово</string>
+    <string name="save">Сохранить</string>
+    <string name="settings">Настройки</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="add">Добавить</string>
+    <string name="today">Сегодня</string>
+    <string name="theme">Стиль</string>
+</resources>
