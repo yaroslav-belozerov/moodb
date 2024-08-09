@@ -7,7 +7,8 @@ import com.yaabelozerov.moodb.R
 @JsonClass(generateAdapter = false)
 enum class IconTheme(
     val nameRes: Int,
-    val ANXIOUS: Int,
+    val tinted: Boolean,
+    val anxious: Int,
     val UNCOMFY: Int,
     val SAD: Int,
     val DEPRESSED: Int,
@@ -26,25 +27,27 @@ enum class IconTheme(
 ) {
     SIMPLE(
         R.string.theme_simple,
-        R.drawable.mood_apple_anxious,
-        R.drawable.mood_apple_uncomfy,
-        R.drawable.mood_apple_sad,
-        R.drawable.mood_apple_depressed,
-        R.drawable.mood_apple_chill,
-        R.drawable.mood_apple_calm,
-        R.drawable.mood_apple_bored,
-        R.drawable.mood_apple_numb,
-        R.drawable.mood_apple_confused,
-        R.drawable.mood_apple_grateful,
-        R.drawable.mood_apple_happy,
-        R.drawable.mood_apple_excited,
-        R.drawable.mood_apple_hopeful,
-        R.drawable.mood_apple_annoyed,
-        R.drawable.mood_apple_angry,
-        R.drawable.mood_apple_outraged,
+        true,
+        R.drawable.mood_simple_anxious,
+        R.drawable.mood_simple_uncomfy,
+        R.drawable.mood_simple_sad,
+        R.drawable.mood_simple_depressed,
+        R.drawable.mood_simple_chill,
+        R.drawable.mood_simple_calm,
+        R.drawable.mood_simple_bored,
+        R.drawable.mood_simple_numb,
+        R.drawable.mood_simple_confused,
+        R.drawable.mood_simple_grateful,
+        R.drawable.mood_simple_happy,
+        R.drawable.mood_simple_excited,
+        R.drawable.mood_simple_hopeful,
+        R.drawable.mood_simple_annoyed,
+        R.drawable.mood_simple_angry,
+        R.drawable.mood_simple_outraged,
     ),
     APPLE(
         R.string.theme_apple,
+        false,
         R.drawable.mood_apple_anxious,
         R.drawable.mood_apple_uncomfy,
         R.drawable.mood_apple_sad,
@@ -65,7 +68,7 @@ enum class IconTheme(
 
     fun mapToIconResource(type: DefaultMoodType): Int {
         return when (type) {
-            DefaultMoodType.ANXIOUS -> this.ANXIOUS
+            DefaultMoodType.ANXIOUS -> this.anxious
             DefaultMoodType.UNCOMFY -> this.UNCOMFY
             DefaultMoodType.SAD -> this.SAD
             DefaultMoodType.DEPRESSED -> this.DEPRESSED

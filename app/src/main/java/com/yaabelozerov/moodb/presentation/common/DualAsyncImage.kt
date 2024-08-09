@@ -1,6 +1,7 @@
 package com.yaabelozerov.moodb.presentation.common
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -8,6 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
@@ -38,7 +41,8 @@ fun DualAsyncImage(
             modifier = imageModifier,
             model = dualIconResource.resId,
             contentDescription = null,
-            imageLoader = imageLoader
+            imageLoader = imageLoader,
+            colorFilter = if (dualIconResource.tinted) ColorFilter.tint(MaterialTheme.colorScheme.primary) else null
         )
     }
 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-data class DualImageResource(val resId: Int? = null, val filePath: String? = null, val rounding: Float = 0f)
+data class DualImageResource(val resId: Int? = null, val filePath: String? = null, val rounding: Float = 0f, val tinted: Boolean = false)
 
 class IconThemeManager @Inject constructor(
     @ApplicationContext private val app: Context,
@@ -37,7 +37,7 @@ class IconThemeManager @Inject constructor(
                 Log.i("IconInterceptor", "Loading default theme $s")
                 _currIconTheme.update {
                     DefaultMoodType.entries.associateWith {
-                        DualImageResource(resId = theme.mapToIconResource(it))
+                        DualImageResource(resId = theme.mapToIconResource(it), tinted = theme.tinted)
                     }
                 }.also { Log.i("fetchTheme", _currIconTheme.value.toString()) }
             } catch (e: Exception) {
@@ -60,7 +60,7 @@ class IconThemeManager @Inject constructor(
                             if (path != null) {
                                 DualImageResource(filePath = path, rounding = theme.iconRounding)
                             } else {
-                                DualImageResource(resId = IconTheme.SIMPLE.mapToIconResource(type))
+                                DualImageResource(resId = IconTheme.SIMPLE.mapToIconResource(type), tinted = IconTheme.SIMPLE.tinted)
                             }
                         }
                     }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -66,15 +67,14 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IconThemeTopBar(
-    scroll: TopAppBarScrollBehavior,
-    onBack: (() -> Unit)?,
-    actions: @Composable RowScope.() -> Unit
+    scroll: TopAppBarScrollBehavior, onBack: (() -> Unit)?, actions: @Composable RowScope.() -> Unit
 ) {
     TopBar(
         name = stringResource(id = R.string.icon_theme),
         scroll = scroll,
         onBack = onBack,
-        actions = actions)
+        actions = actions
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -95,18 +95,15 @@ fun IconTheme(
 ) {
     val scroll = exitUntilCollapsedScrollBehavior()
     Scaffold(topBar = {
-        IconThemeTopBar(
-            scroll = scroll,
-            onBack = onBack,
-            actions = {
-                IconButton(onClick = {
-                    onCreateTheme()
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = null
-                    )
-                }
-            })
+        IconThemeTopBar(scroll = scroll, onBack = onBack, actions = {
+            IconButton(onClick = {
+                onCreateTheme()
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Add, contentDescription = null
+                )
+            }
+        })
     }) { innerPadding ->
         LazyColumn(
             modifier = modifier
@@ -116,7 +113,12 @@ fun IconTheme(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(IconTheme.entries) {
-                DefaultTheme(it, it.name == chosen, onSetCurrentTheme = onSetCurrentTheme)
+                DefaultTheme(
+                    it,
+                    it.name == chosen,
+                    onSetCurrentTheme = onSetCurrentTheme,
+                    imageLoader = imageLoader
+                )
             }
             items(themes.list) {
                 CustomTheme(
@@ -142,6 +144,7 @@ fun DefaultTheme(
     theme: IconTheme,
     isChosen: Boolean = false,
     onSetCurrentTheme: (String) -> Unit,
+    imageLoader: ImageLoader
 ) {
     Card(
         onClick = { if (!isChosen) onSetCurrentTheme(theme.name) },
@@ -165,10 +168,12 @@ fun DefaultTheme(
                 maxItemsInEachRow = 8
             ) {
                 DefaultMoodType.entries.map { type ->
-                    SubcomposeAsyncImage(
-                        model = theme.mapToIconResource(type),
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp)
+                    DualAsyncImage(
+                        imageModifier = Modifier.size(36.dp),
+                        imageLoader = imageLoader,
+                        dualIconResource = DualImageResource(
+                            resId = theme.mapToIconResource(type), tinted = theme.tinted
+                        )
                     )
                 }
             }
@@ -262,7 +267,6 @@ fun CustomTheme(
                             .weight(1f)
                             .clip(MaterialTheme.shapes.medium)
                             .then(if (iconPath == null) Modifier
-                                .alpha(0.2f)
                                 .clickable { onChooseIcon(theme.name, type) }
                             else Modifier.clickable { onRemoveIcon(theme.name, type, iconPath) })
                     ) {
@@ -270,7 +274,7 @@ fun CustomTheme(
                             imageModifier = Modifier.size(64.dp),
                             imageLoader = imageLoader,
                             dualIconResource = DualImageResource(
-                                default.mapToIconResource(type), iconPath, theme.iconRounding
+                                default.mapToIconResource(type), iconPath, theme.iconRounding, default.tinted
                             )
                         )
                     }
