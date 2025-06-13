@@ -1,40 +1,97 @@
 package com.yaabelozerov.moodb.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import com.yaabelozerov.moodb.R
+import com.yaabelozerov.moodb.data.icons.DualImageResource
+import com.yaabelozerov.moodb.data.model.DefaultMoodType
+import com.yaabelozerov.moodb.presentation.common.DualAsyncImage
+import com.yaabelozerov.moodb.presentation.screens.icontheme.CustomTheme
+import com.yaabelozerov.moodb.presentation.screens.icontheme.DefaultTheme
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconTheme
 import com.yaabelozerov.moodb.presentation.screens.moodedit.MoodEditVM
 import com.yaabelozerov.moodb.presentation.screens.settings.SettingsVM
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconThemeVM
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun FirstTimeScreen(
-    modifier: Modifier = Modifier, svm: SettingsVM, itsvm: IconThemeVM, mevm: MoodEditVM
+    modifier: Modifier = Modifier,
+    svm: SettingsVM,
+    itsvm: IconThemeVM
 ) {
     val scope = rememberCoroutineScope()
     val pager = rememberPagerState(initialPage = 0, pageCount = { Destinations.entries.size })
@@ -45,113 +102,239 @@ fun FirstTimeScreen(
             }
         }
     }
-    Scaffold(floatingActionButton = {
-        Row {
-            if (pager.currentPage != 0) {
-                FloatingActionButton(onClick = {
-                    scope.launch {
-                        pager.animateScrollToPage(pager.currentPage - 1)
-                    }
-                }) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
-                            contentDescription = null
-                        )
-                        Text(
-                            modifier = Modifier.padding(8.dp, 0.dp),
-                            text = stringResource(id = R.string.back),
-                            fontSize = 20.sp
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-            }
-            FloatingActionButton(onClick = {
-                if (pager.currentPage == pager.pageCount - 1) {
-                    mevm.reloadMoods()
-                    svm.setAppVisits(1)
-                } else {
-                    scope.launch {
-                        pager.animateScrollToPage(pager.currentPage + 1)
-                    }
-                }
-            }) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    if (pager.currentPage == pager.pageCount - 1) {
-                        Text(
-                            modifier = Modifier.padding(8.dp, 0.dp),
-                            text = stringResource(id = R.string.complete),
-                            fontSize = 20.sp
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Check, contentDescription = null
-                        )
-                    } else {
-                        Text(
-                            modifier = Modifier.padding(8.dp, 0.dp),
-                            text = stringResource(id = R.string.next),
-                            fontSize = 20.sp
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                            contentDescription = null
-                        )
-                    }
-                }
-            }
-        }
-    }) { innerPadding ->
-        HorizontalPager(modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize(), state = pager) { page ->
+    Scaffold { innerPadding ->
+        HorizontalPager(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                , state = pager
+        ) { page ->
             when (page) {
                 0 -> {
-                    WelcomeLanguage(modifier = modifier
-                        .padding(innerPadding)
-                        .fillMaxSize(),
+                    WelcomeLanguage(
+                        modifier = modifier
+                            .padding(innerPadding)
+                            .fillMaxSize(),
                         svm.getLocales(),
                         onSetLocale = { tag ->
                             svm.setLocale(tag)
+                        },
+                        onNext = {
+                            scope.launch {
+                                pager.animateScrollToPage(pager.currentPage + 1)
+                            }
                         })
                 }
 
                 1 -> {
-                    IconTheme(imageLoader = svm.imageLoader,
-                        chosen = itsvm.currentTheme.collectAsState().value,
-                        themes = itsvm.customThemes.collectAsState().value,
-                        onBack = null,
-                        onCreateTheme = {
-                            itsvm.createTheme()
+                    OnboardingThemeChooser(
+                        itsvm = itsvm,
+                        onNext = {
+                            svm.setAppVisits(1)
                         },
-                        onChooseIcon = { packName, type ->
-                            itsvm.setTypeAndSetter(packName, type)
-                            itsvm.launchIconPicker()
-                        },
-                        onChangeRounding = { packName, rounding ->
-                            itsvm.setRounding(packName, rounding)
-                        },
-                        onSavePackName = { old, new ->
-                            itsvm.setThemeName(old, new)
-                        },
-                        onSetCurrentTheme = { new ->
-                            itsvm.setTheme(new)
-                        },
-                        onRemoveIcon = { pack, type, path ->
-                            itsvm.removeFile(pack, type, path)
-                        },
-                        onRemoveTheme = { pack ->
-                            itsvm.removeTheme(pack)
-                        })
+                        onBack = {  scope.launch {
+                            pager.animateScrollToPage(pager.currentPage - 1)
+                        } },
+                        modifier = modifier.padding(innerPadding),
+                    )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WelcomeLanguage(
+    modifier: Modifier = Modifier,
+    locales: List<Locale>,
+    onSetLocale: (String) -> Unit,
+    onNext: () -> Unit,
+) {
+    Column(
+        modifier = modifier.padding(24.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy((16).dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy((-16).dp)) {
+                Text(
+                    "Welcome to",
+                    fontSize = 30.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = stringResource(id = R.string.app_name).uppercase(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 80.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            val sheetState = rememberModalBottomSheetState()
+            val scope = rememberCoroutineScope()
+            TextButton(
+                onClick = { scope.launch { sheetState.show() } },
+                shape = MaterialTheme.shapes.extraSmall
+            ) {
+                if (sheetState.isVisible) ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { scope.launch { sheetState.hide() } },
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null)
+                            Text(
+                                "Choose a language",
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        locales.map {
+                            TextButton(
+                                modifier = Modifier.fillMaxWidth(), onClick = {
+                                    scope.launch {
+                                        sheetState.hide()
+                                        onSetLocale(it.toLanguageTag())
+                                    }
+                                }, shape = MaterialTheme.shapes.extraSmall
+                            ) {
+                                Text(
+                                    text = it.displayName.replaceFirstChar { char -> char.uppercase() },
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                Text(
+                    text = Locale.getDefault().displayLanguage.replaceFirstChar { it.uppercase() },
+                    modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null
+                )
+            }
+            Button(onClick = onNext, shape = MaterialTheme.shapes.extraSmall) {
+                Text(
+                    stringResource(R.string.next),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp)
+                )
+                Icon(Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
+            }
+        }
+    }
+}
+
+@Composable
+private fun OnboardingThemeChooser(itsvm: IconThemeVM, onNext: () -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {
+    LaunchedEffect(Unit) { itsvm.fetchCustomThemes() }
+    val chosen by itsvm.currentTheme.collectAsState()
+    val themes by itsvm.customThemes.collectAsState()
+    val scope = rememberCoroutineScope()
+    Column(modifier = modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.SpaceBetween) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text("Choose a theme", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold)
+            FlowRow (
+                modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(0.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                com.yaabelozerov.moodb.data.model.IconTheme.entries.forEach {
+                    var currentIndex by remember { mutableIntStateOf(0) }
+                    LaunchedEffect(Unit) {
+                        scope.launch {
+                            while (true) {
+                                currentIndex =
+                                    if (currentIndex == DefaultMoodType.entries.size - 1) 0 else currentIndex + 1; delay(
+                                    1000
+                                )
+                            }
+                        }
+                    }
+                    OutlinedCard(shape = MaterialTheme.shapes.extraSmall, onClick = { itsvm.setTheme(it.name) }, colors = CardDefaults.outlinedCardColors().copy(containerColor = if (it.name == chosen) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent)) {
+                        Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(it.name, style = MaterialTheme.typography.titleLarge)
+                            Crossfade(currentIndex) { index ->
+                                DualAsyncImage(
+                                    imageModifier = Modifier.size(64.dp), dualIconResource = DualImageResource(
+                                        resId = it.mapToIconResource(DefaultMoodType.entries[index]),
+                                        tinted = it.tinted
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+                themes.list.forEach { theme ->
+                    OutlinedCard(shape = MaterialTheme.shapes.extraSmall, onClick = { itsvm.setTheme(theme.name) }, colors = CardDefaults.outlinedCardColors().copy(containerColor = if (theme.name == chosen) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent)) {
+                        Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(theme.name, style = MaterialTheme.typography.titleLarge)
+
+                            var currentIndex by remember { mutableIntStateOf(0) }
+                            LaunchedEffect(Unit) {
+                                scope.launch {
+                                    while (true) {
+                                        currentIndex =
+                                            if (currentIndex == DefaultMoodType.entries.size - 1) 0 else currentIndex + 1; delay(
+                                            1000
+                                        )
+                                    }
+                                }
+                            }
+                            Crossfade(currentIndex) { index ->
+                                val iconPath = theme.mapToIconPath(DefaultMoodType.entries[index])
+                                DualAsyncImage(
+                                    imageModifier = Modifier.size(72.dp), dualIconResource = DualImageResource(
+                                        com.yaabelozerov.moodb.data.model.IconTheme.SIMPLE.mapToIconResource(
+                                            DefaultMoodType.entries[index]
+                                        ),
+                                        iconPath,
+                                        theme.iconRounding,
+                                        com.yaabelozerov.moodb.data.model.IconTheme.SIMPLE.tinted
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            TextButton(onClick = onBack, shape = MaterialTheme.shapes.extraSmall) {
+                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+                Text(
+                    stringResource(R.string.back),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp)
+                )
+            }
+            Button(onClick = onNext, shape = MaterialTheme.shapes.extraSmall) {
+                Text(
+                    stringResource(R.string.complete),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp)
+                )
+                Icon(Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
             }
         }
     }

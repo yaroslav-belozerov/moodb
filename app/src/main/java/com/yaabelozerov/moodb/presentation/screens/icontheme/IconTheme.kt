@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -36,9 +38,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBehavior
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,10 +54,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import com.yaabelozerov.moodb.R
@@ -62,6 +72,7 @@ import com.yaabelozerov.moodb.data.model.IconTheme
 import com.yaabelozerov.moodb.data.model.ThemeList
 import com.yaabelozerov.moodb.presentation.common.DualAsyncImage
 import com.yaabelozerov.moodb.presentation.common.TopBar
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,23 +92,17 @@ fun IconThemeTopBar(
 @Composable
 fun IconTheme(
     modifier: Modifier = Modifier,
-    imageLoader: ImageLoader,
-    chosen: String,
-    themes: ThemeList,
-    onBack: (() -> Unit)?,
-    onCreateTheme: () -> Unit,
-    onChooseIcon: (String, DefaultMoodType) -> Unit,
-    onChangeRounding: (String, Float) -> Unit,
-    onSavePackName: (String, String) -> Unit,
-    onSetCurrentTheme: (String) -> Unit,
-    onRemoveIcon: (String, DefaultMoodType, String) -> Unit,
-    onRemoveTheme: (String) -> Unit,
+    onExit: () -> Unit,
+    itsvm: IconThemeVM,
 ) {
+    LaunchedEffect(Unit) { itsvm.fetchCustomThemes() }
     val scroll = exitUntilCollapsedScrollBehavior()
+    val chosen by itsvm.currentTheme.collectAsState()
+    val themes by itsvm.customThemes.collectAsState()
     Scaffold(topBar = {
-        IconThemeTopBar(scroll = scroll, onBack = onBack, actions = {
+        IconThemeTopBar(scroll = scroll, onBack = onExit, actions = {
             IconButton(onClick = {
-                onCreateTheme()
+                itsvm.createTheme()
             }) {
                 Icon(
                     imageVector = Icons.Default.Add, contentDescription = null
@@ -116,22 +121,23 @@ fun IconTheme(
                 DefaultTheme(
                     it,
                     it.name == chosen,
-                    onSetCurrentTheme = onSetCurrentTheme,
-                    imageLoader = imageLoader
+                    onSetCurrentTheme = itsvm::setTheme,
                 )
             }
             items(themes.list) {
                 CustomTheme(
-                    imageLoader = imageLoader,
                     it.name == chosen,
                     theme = it,
                     default = IconTheme.SIMPLE,
-                    onChooseIcon = onChooseIcon,
-                    onChangeRounding = onChangeRounding,
-                    onSavePackName = onSavePackName,
-                    onSetCurrentTheme = onSetCurrentTheme,
-                    onRemoveTheme = onRemoveTheme,
-                    onRemoveIcon = onRemoveIcon
+                    onChooseIcon = { packName, type ->
+                        itsvm.setTypeAndSetter(packName, type)
+                        itsvm.launchIconPicker()
+                    },
+                    onChangeRounding = itsvm::setRounding,
+                    onSavePackName = itsvm::setThemeName,
+                    onSetCurrentTheme = itsvm::setTheme,
+                    onRemoveTheme = itsvm::removeTheme,
+                    onRemoveIcon = itsvm::removeFile
                 )
             }
         }
@@ -144,7 +150,6 @@ fun DefaultTheme(
     theme: IconTheme,
     isChosen: Boolean = false,
     onSetCurrentTheme: (String) -> Unit,
-    imageLoader: ImageLoader
 ) {
     Card(
         onClick = { if (!isChosen) onSetCurrentTheme(theme.name) },
@@ -170,7 +175,6 @@ fun DefaultTheme(
                 DefaultMoodType.entries.map { type ->
                     DualAsyncImage(
                         imageModifier = Modifier.size(36.dp),
-                        imageLoader = imageLoader,
                         dualIconResource = DualImageResource(
                             resId = theme.mapToIconResource(type), tinted = theme.tinted
                         )
@@ -184,7 +188,6 @@ fun DefaultTheme(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CustomTheme(
-    imageLoader: ImageLoader,
     isChosen: Boolean,
     theme: CustomIconTheme,
     default: IconTheme,
@@ -214,21 +217,34 @@ fun CustomTheme(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (!editing) {
                     Row(modifier = Modifier
+                        .fillMaxWidth()
                         .clip(MaterialTheme.shapes.medium)
                         .clickable { editing = true }
                         .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text(text = theme.name, fontSize = 32.sp)
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = theme.name, fontSize = 32.sp, modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp))
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(32.dp))
                     }
                 } else {
                     var newText by remember {
                         mutableStateOf(theme.name)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextField(value = newText,
-                            onValueChange = { newText = it },
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        val fr = remember { FocusRequester() }
+                        LaunchedEffect(editing) { if (editing) fr.requestFocus() }
+                        TextField(
+                            value = newText,
+                            onValueChange = { newText = it }, modifier = Modifier.weight(1f).focusRequester(fr),
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            shape = MaterialTheme.shapes.extraSmall,
                             trailingIcon = {
                                 IconButton(onClick = {
                                     onSavePackName(theme.name, newText)
@@ -239,7 +255,6 @@ fun CustomTheme(
                                     )
                                 }
                             },
-                            textStyle = LocalTextStyle.current.copy(fontSize = 32.sp)
                         )
                         IconButton(onClick = {
                             editing = false
@@ -272,7 +287,6 @@ fun CustomTheme(
                     ) {
                         DualAsyncImage(
                             imageModifier = Modifier.size(64.dp),
-                            imageLoader = imageLoader,
                             dualIconResource = DualImageResource(
                                 default.mapToIconResource(type), iconPath, theme.iconRounding, default.tinted
                             )

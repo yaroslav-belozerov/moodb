@@ -33,7 +33,6 @@ import java.io.File
 @Composable
 fun MoodEditAll(
     modifier: Modifier = Modifier,
-    imageLoader: ImageLoader,
     types: List<MoodType>,
     ic: Map<DefaultMoodType, DualImageResource>,
     onBack: () -> Unit,
@@ -63,7 +62,6 @@ fun MoodEditAll(
                     ic[type.defaultMoodType]?.let {
                         DualAsyncImage(
                             imageModifier = Modifier.size(48.dp),
-                            imageLoader = imageLoader,
                             dualIconResource = it
                         )
                     }

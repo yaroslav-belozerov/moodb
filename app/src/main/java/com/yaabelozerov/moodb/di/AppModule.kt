@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import coil.ImageLoader
 import coil.imageLoader
+import coil.request.CachePolicy
 import com.squareup.moshi.Moshi
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.icons.IconManager
@@ -42,10 +43,6 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRecordDao(db: RecordDatabase<RecordDao>) = db.dao()
-
-    @Singleton
-    @Provides
-    fun provideCoilImageLoader(@ApplicationContext app: Context): ImageLoader = app.imageLoader.newBuilder().crossfade(true).build()
 
     @Singleton
     @Provides

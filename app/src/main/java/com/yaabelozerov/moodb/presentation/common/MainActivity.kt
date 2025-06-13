@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                 val isFirstTime = svm.firstTimeOpen.collectAsState().value
                 Crossfade(targetState = isFirstTime) { firstTime ->
                     if (firstTime == true) {
-                        FirstTimeScreen(svm = svm, itsvm = itsvm, mevm = mevm)
+                        FirstTimeScreen(svm = svm, itsvm = itsvm)
                     } else if (firstTime == false) {
                         ContentNavHost(
                             navController = navController,

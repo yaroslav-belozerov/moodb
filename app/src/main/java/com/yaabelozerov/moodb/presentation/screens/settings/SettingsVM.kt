@@ -28,7 +28,6 @@ class SettingsVM @Inject constructor(
     @ApplicationContext private val app: Context,
     private val dataStoreManager: AppModule.DataStoreManager,
     val iconThemeManager: IconThemeManager,
-    val imageLoader: ImageLoader
 ) : ViewModel() {
     private val _locale = MutableStateFlow<String>("")
     val locale = _locale.asStateFlow()

@@ -32,7 +32,7 @@ class MoodEditVM @Inject constructor(
     val currentMoodTypes = _currentMoodTypes.asStateFlow()
 
     fun reloadMoods() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             dataStoreManager.get(SK.MoodTypes).first().let { moodTypes ->
                 val ad = moshi.adapter(MoodList::class.java).serializeNulls()
                 if (moodTypes == SK.MoodTypes.default) {

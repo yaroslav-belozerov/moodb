@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
@@ -8,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.yaabelozerov.moodb"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         resourceConfigurations += listOf("en", "ru")
@@ -91,4 +92,5 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.coil)
     implementation(libs.coil.compose)
+    
 }

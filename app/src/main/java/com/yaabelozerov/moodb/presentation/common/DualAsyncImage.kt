@@ -12,7 +12,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import coil.ImageLoader
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.yaabelozerov.moodb.data.icons.DualImageResource
 import java.io.File
@@ -21,27 +23,24 @@ import kotlin.math.min
 @Composable
 fun DualAsyncImage(
     imageModifier: Modifier = Modifier,
-    imageLoader: ImageLoader,
     dualIconResource: DualImageResource
 ) {
     var imageSize by remember {
         mutableFloatStateOf(0f)
     }
     if (dualIconResource.filePath != null) {
-        SubcomposeAsyncImage(modifier = imageModifier
+        AsyncImage(modifier = imageModifier
             .onGloballyPositioned {
                 imageSize = min(it.size.height.toFloat(), it.size.width.toFloat()) / 2
             }
             .clip(RoundedCornerShape(dualIconResource.rounding * imageSize)),
             model = File(dualIconResource.filePath),
-            contentDescription = null,
-            imageLoader = imageLoader)
+            contentDescription = null)
     } else if (dualIconResource.resId != null) {
-        SubcomposeAsyncImage(
+        AsyncImage(
             modifier = imageModifier,
             model = dualIconResource.resId,
             contentDescription = null,
-            imageLoader = imageLoader,
             colorFilter = if (dualIconResource.tinted) ColorFilter.tint(MaterialTheme.colorScheme.primary) else null
         )
     }

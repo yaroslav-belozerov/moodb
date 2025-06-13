@@ -48,10 +48,6 @@ class IconThemeVM @Inject constructor(
 
     private val ad = moshi.adapter(ThemeList::class.java)
 
-    init {
-        fetchCustomThemes()
-    }
-
     fun tryThemeDefault(s: String): IconTheme? {
         return try {
             IconTheme.valueOf(s)
