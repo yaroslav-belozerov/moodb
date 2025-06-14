@@ -45,7 +45,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import cafe.adriel.lyricist.LocalStrings
 import com.yaabelozerov.moodb.R
+import com.yaabelozerov.moodb.data.datastore.SK
+import com.yaabelozerov.moodb.di.BaseApplication
+import com.yaabelozerov.moodb.presentation.locale.AvailableLocalizations
 import com.yaabelozerov.moodb.presentation.screens.main.MainScreen
 import com.yaabelozerov.moodb.presentation.screens.moodedit.MoodEdit
 import com.yaabelozerov.moodb.presentation.screens.moodedit.MoodEditAll
@@ -71,7 +75,10 @@ fun ContentNavHost(
     NavHost(
         modifier = modifier, navController = navController, startDestination = ND.MainScreen.route
     ) {
-        composable(ND.MainScreen.route, enterTransition = { EnterTransition.None }, exitTransition = { ExitTransition.None }) {
+        composable(
+            ND.MainScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }) {
             MainScreen(
                 navController = navController,
                 mvm = mvm,
@@ -87,7 +94,9 @@ fun ContentNavHost(
             },
             exitTransition = {
                 ExitTransition.None
-            }, popEnterTransition = { EnterTransition.None }, popExitTransition = { slideOutVertically(targetOffsetY = {it}) }) {
+            },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { slideOutVertically(targetOffsetY = { it }) }) {
 
             composable("SETTINGS") {
                 val sheetState = rememberModalBottomSheetState()
@@ -108,23 +117,24 @@ fun ContentNavHost(
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
                             Text(
-                                "Choose a language",
+                                LocalStrings.current.chooseLanguage,
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        val locales by remember { mutableStateOf(svm.getLocales()) }
-                        locales.map {
+                        AvailableLocalizations.entries.map {
                             TextButton(
                                 modifier = Modifier.fillMaxWidth(), onClick = {
                                     scope.launch {
                                         sheetState.hide()
-                                        svm.setLocale(it.toLanguageTag())
+                                        BaseApplication.dataStoreManager.set(
+                                            SK.LocaleTag, it.localization.localeTag
+                                        )
                                     }
                                 }, shape = MaterialTheme.shapes.extraSmall
                             ) {
                                 Text(
-                                    text = it.displayName.replaceFirstChar { char -> char.uppercase() },
+                                    text = it.localization.localizedName,
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier
@@ -140,20 +150,19 @@ fun ContentNavHost(
                 SettingsScreen(
                     routes = listOf(
                         MenuRoute(
-                    Icons.Default.Edit, stringResource(id = R.string.edit_mood_types), ""
+                    Icons.Default.Edit, LocalStrings.current.settings.moodTypes, ""
                 ) {
                     navController.navigate(ND.MoodEditAll.route)
                     mevm.reloadMoods()
                 }, MenuRoute(
-                    Icons.Default.Face,
-                    stringResource(id = R.string.icon_theme),
-                    itsvm.tryThemeDefault(currentTheme)?.let { stringResource(id = it.nameRes) }
-                        ?: currentTheme) {
+                            Icons.Default.Face,
+                    LocalStrings.current.settings.iconTheme,
+                    currentTheme) {
                     navController.navigate(ND.IconTheme.route)
                 }, MenuRoute(
                     Icons.Default.LocationOn,
-                    stringResource(id = R.string.language),
-                    svm.locale.collectAsState().value,
+                    LocalStrings.current.settings.language,
+                    LocalStrings.current.localizedName,
                 ) {
                     scope.launch { sheetState.show() }
                 }), onBack = { navController.navigateUp() })

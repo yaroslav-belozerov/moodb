@@ -10,6 +10,8 @@ import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.locale.LocaleList
 import com.yaabelozerov.moodb.data.icons.IconThemeManager
 import com.yaabelozerov.moodb.di.AppModule
+import com.yaabelozerov.moodb.di.BaseApplication
+import com.yaabelozerov.moodb.presentation.locale.readLocaleTag
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +28,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsVM @Inject constructor(
     @ApplicationContext private val app: Context,
-    private val dataStoreManager: AppModule.DataStoreManager,
     val iconThemeManager: IconThemeManager,
 ) : ViewModel() {
     private val _locale = MutableStateFlow<String>("")
@@ -37,10 +38,9 @@ class SettingsVM @Inject constructor(
 
     init {
 //        _firstTimeOpen.update { true }
-        fetchLocale()
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val cnt = dataStoreManager.get(SK.TimesVisited).first()
+                val cnt = BaseApplication.dataStoreManager.get(SK.TimesVisited).first()
                 if (cnt == 0L) {
                     _firstTimeOpen.update { true }
                 } else {
@@ -54,30 +54,10 @@ class SettingsVM @Inject constructor(
     fun setAppVisits(count: Long, callback: suspend () -> Unit = {}) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                dataStoreManager.set(SK.TimesVisited, count)
+                BaseApplication.dataStoreManager.set(SK.TimesVisited, count)
                 callback()
             }
         }
         _firstTimeOpen.update { false }
-    }
-
-    fun getLocales(): List<Locale> {
-        return LocaleList.builtin
-    }
-
-    private fun fetchLocale() {
-        _locale.update {
-            AppCompatDelegate.getApplicationLocales().get(0)?.let {
-                it.getDisplayLanguage(it).replaceFirstChar { char -> char.uppercase() }
-            } ?: Locale.getDefault().displayName.toString()
-        }
-    }
-
-    fun setLocale(localeTag: String, callback: suspend () -> Unit = {}) {
-        viewModelScope.launch {
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(localeTag))
-            callback()
-            fetchLocale()
-        }
     }
 }

@@ -30,7 +30,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    private val Context.dataStore by preferencesDataStore("settings")
 
     @Singleton
     @Provides
@@ -56,26 +55,7 @@ object AppModule {
     @Provides
     fun provideIconInterceptor(
         @ApplicationContext app: Context,
-        dataStoreManager: DataStoreManager,
         iconManager: IconManager,
         moshi: Moshi
-    ): IconThemeManager = IconThemeManager(app, dataStoreManager, iconManager, moshi)
-
-    @Singleton
-    class DataStoreManager @Inject constructor(@ApplicationContext appContext: Context) {
-
-        private val settingsDataStore = appContext.dataStore
-
-        fun <T> get(key: SK<T>): Flow<T> {
-            return settingsDataStore.data.map { s ->
-                s[key.key] ?: key.default
-            }.flowOn(Dispatchers.IO)
-        }
-
-        suspend fun <T> set(key: SK<T>, value: T) {
-            settingsDataStore.edit { s ->
-                s[key.key] = value
-            }
-        }
-    }
+    ): IconThemeManager = IconThemeManager(app, iconManager, moshi)
 }

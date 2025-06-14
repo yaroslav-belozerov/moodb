@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.room.mood.RecordDao
 import com.yaabelozerov.moodb.data.room.mood.RecordEntity
+import com.yaabelozerov.moodb.di.BaseApplication
 import com.yaabelozerov.moodb.presentation.common.Four
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import java.time.ZoneId
 import javax.inject.Inject
 import com.yaabelozerov.moodb.util.display
 import com.yaabelozerov.moodb.util.toDate
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.plus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,12 +44,9 @@ class MainVM @Inject constructor(
     private val _showFirst = MutableStateFlow<Int?>(null)
     val showFirst = _showFirst.asStateFlow()
 
-    init {
-        fetchMonths()
-    }
-
     fun fetchMonths() {
         viewModelScope.launch {
+            val languageTag = BaseApplication.localizationManager.localeTag.first()
             dao.getAll().collect { list ->
                 val z = ZoneId.systemDefault()
                 val recordsNew = mutableMapOf<PagedMonth, Map<Int, RecordEntity?>>()
@@ -60,9 +59,9 @@ class MainVM @Inject constructor(
                     listOf(currMinus, currentDate, currPlus).forEachIndexed { i, it ->
                         recordsNew[PagedMonth(
                             i + 1, Month(
-                                it.month.length(false),
+                                it.month.length(currentDate.isLeapYear),
                                 it.minusDays(it.dayOfMonth.toLong()).dayOfWeek.value,
-                                it.month.display(),
+                                it.month.display(languageTag),
                                 it.year.toString()
                             ), MonthYear(it.month.value, it.year)
                         )] = emptyMap()
@@ -83,7 +82,7 @@ class MainVM @Inject constructor(
                         monthIndex, Month(
                             first.month.length(false),
                             first.minusDays(first.dayOfMonth.toLong()).dayOfWeek.value,
-                            first.month.display(),
+                            first.month.display(languageTag),
                             first.year.toString()
                         ), MonthYear(first.month.value, first.year)
                     )

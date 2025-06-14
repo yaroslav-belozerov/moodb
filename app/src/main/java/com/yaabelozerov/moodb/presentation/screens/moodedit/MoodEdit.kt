@@ -37,6 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.lyricist.LocalStrings
 import com.yaabelozerov.moodb.R
 import com.yaabelozerov.moodb.data.model.Category
 import com.yaabelozerov.moodb.data.model.MoodType
@@ -52,7 +53,7 @@ fun MoodEdit(
     onSetDefaultType: (MoodType) -> Unit,
     onSetNewType: (MoodType, String, Category) -> Unit
 ) {
-    val name = type.customName ?: stringResource(id = type.defaultMoodType.nameRes)
+    val name = type.customName ?: LocalStrings.current.moodType(type.defaultMoodType)
     var txt by remember {
         mutableStateOf(name)
     }
@@ -107,7 +108,7 @@ fun MoodEdit(
                 onSetNewType(type, txt, category)
                 onBack()
             }, modifier = Modifier.fillMaxWidth()) {
-                Text(text = stringResource(id = R.string.save), fontSize = 20.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                Text(text = LocalStrings.current.edit.save, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 8.dp))
                 Icon(
                     imageVector = Icons.Default.Check, contentDescription = null
                 )
@@ -119,19 +120,19 @@ fun MoodEdit(
 @Composable
 fun CategoryList(category: Category, onValueChange: (Category) -> Unit) {
     CategoryRow(
-        name = stringResource(id = R.string.cat_happy), value = category.happy
+        name = LocalStrings.current.mood.happy, value = category.happy
     ) { new -> onValueChange(category.copy(happy = new)) }
     CategoryRow(
-        name = stringResource(id = R.string.cat_energetic), value = category.energetic
+        name = LocalStrings.current.mood.energetic, value = category.energetic
     ) { new -> onValueChange(category.copy(energetic = new)) }
     CategoryRow(
-        name = stringResource(id = R.string.cat_neutral), value = category.neutral
+        name = LocalStrings.current.mood.neutral, value = category.neutral
     ) { new -> onValueChange(category.copy(neutral = new)) }
     CategoryRow(
-        name = stringResource(id = R.string.cat_sad), value = category.sad
+        name = LocalStrings.current.mood.sad, value = category.sad
     ) { new -> onValueChange(category.copy(sad = new)) }
     CategoryRow(
-        name = stringResource(id = R.string.cat_angry), value = category.angry
+        name = LocalStrings.current.mood.angry, value = category.angry
     ) { new -> onValueChange(category.copy(angry = new)) }
 }
 

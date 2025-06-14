@@ -10,6 +10,7 @@ import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.model.MoodList
 import com.yaabelozerov.moodb.data.model.MoodType
 import com.yaabelozerov.moodb.di.AppModule
+import com.yaabelozerov.moodb.di.BaseApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MoodEditVM @Inject constructor(
     @ApplicationContext private val app: Context,
-    private val dataStoreManager: AppModule.DataStoreManager,
     private val moshi: Moshi
 ) : ViewModel() {
 
@@ -33,13 +33,13 @@ class MoodEditVM @Inject constructor(
 
     fun reloadMoods() {
         viewModelScope.launch(Dispatchers.IO) {
-            dataStoreManager.get(SK.MoodTypes).first().let { moodTypes ->
+            BaseApplication.dataStoreManager.get(SK.MoodTypes).first().let { moodTypes ->
                 val ad = moshi.adapter(MoodList::class.java).serializeNulls()
                 if (moodTypes == SK.MoodTypes.default) {
                     val lst = DefaultMoodType.entries.map {
                         MoodType(it, null, null)
                     }
-                    dataStoreManager.set(
+                    BaseApplication.dataStoreManager.set(
                         SK.MoodTypes, ad.toJson(MoodList(list = lst))
                     )
                     _currentMoodTypes.update { lst }
@@ -56,7 +56,7 @@ class MoodEditVM @Inject constructor(
         type: MoodType, newName: String, newCategory: Category
     ) {
         viewModelScope.launch {
-            dataStoreManager.set(
+            BaseApplication.dataStoreManager.set(
                 SK.MoodTypes,
                 moshi.adapter(MoodList::class.java).serializeNulls()
                     .toJson(MoodList(list = _currentMoodTypes.value.map { curr ->
@@ -80,7 +80,7 @@ class MoodEditVM @Inject constructor(
     ) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                dataStoreManager.set(
+                BaseApplication.dataStoreManager.set(
                     SK.MoodTypes,
                     moshi.adapter(MoodList::class.java).serializeNulls()
                         .toJson(MoodList(list = _currentMoodTypes.value.map { curr ->

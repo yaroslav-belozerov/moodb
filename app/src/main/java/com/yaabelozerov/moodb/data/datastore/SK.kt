@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 sealed class SK<T>(val key: Preferences.Key<T>, val default: T) { // Settings Keys
+    data object LocaleTag: SK<String>(stringPreferencesKey("locale_tag"), "")
     data object MoodTypes : SK<String>(stringPreferencesKey("mood_types"), "")
     data object TimesVisited : SK<Long>(longPreferencesKey("first_time_visit"), 0)
     data object CustomIconThemes : SK<String>(stringPreferencesKey("custom_icon_themes"), "")

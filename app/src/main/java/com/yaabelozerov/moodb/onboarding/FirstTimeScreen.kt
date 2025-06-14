@@ -71,11 +71,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cafe.adriel.lyricist.LocalStrings
 import coil.ImageLoader
 import com.yaabelozerov.moodb.R
+import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.icons.DualImageResource
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
+import com.yaabelozerov.moodb.di.BaseApplication
 import com.yaabelozerov.moodb.presentation.common.DualAsyncImage
+import com.yaabelozerov.moodb.presentation.locale.AvailableLocalizations
+import com.yaabelozerov.moodb.presentation.locale.setLocaleTag
 import com.yaabelozerov.moodb.presentation.screens.icontheme.CustomTheme
 import com.yaabelozerov.moodb.presentation.screens.icontheme.DefaultTheme
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconTheme
@@ -115,9 +120,10 @@ fun FirstTimeScreen(
                         modifier = modifier
                             .padding(innerPadding)
                             .fillMaxSize(),
-                        svm.getLocales(),
                         onSetLocale = { tag ->
-                            svm.setLocale(tag)
+                            scope.launch {
+                                setLocaleTag(tag)
+                            }
                         },
                         onNext = {
                             scope.launch {
@@ -147,7 +153,6 @@ fun FirstTimeScreen(
 @Composable
 private fun WelcomeLanguage(
     modifier: Modifier = Modifier,
-    locales: List<Locale>,
     onSetLocale: (String) -> Unit,
     onNext: () -> Unit,
 ) {
@@ -159,13 +164,13 @@ private fun WelcomeLanguage(
         Column(verticalArrangement = Arrangement.spacedBy((16).dp)) {
             Column(verticalArrangement = Arrangement.spacedBy((-16).dp)) {
                 Text(
-                    "Welcome to",
+                    LocalStrings.current.welcomeTo,
                     fontSize = 30.sp,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = stringResource(id = R.string.app_name).uppercase(),
+                    text = LocalStrings.current.appName,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.displayLarge,
                     fontWeight = FontWeight.Black,
@@ -200,22 +205,22 @@ private fun WelcomeLanguage(
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
                             Text(
-                                "Choose a language",
+                                LocalStrings.current.chooseLanguage,
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        locales.map {
+                        AvailableLocalizations.entries.map {
                             TextButton(
                                 modifier = Modifier.fillMaxWidth(), onClick = {
                                     scope.launch {
                                         sheetState.hide()
-                                        onSetLocale(it.toLanguageTag())
+                                        onSetLocale(it.localization.localeTag)
                                     }
                                 }, shape = MaterialTheme.shapes.extraSmall
                             ) {
                                 Text(
-                                    text = it.displayName.replaceFirstChar { char -> char.uppercase() },
+                                    text = it.localization.localizedName,
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier
@@ -237,7 +242,7 @@ private fun WelcomeLanguage(
             }
             Button(onClick = onNext, shape = MaterialTheme.shapes.extraSmall) {
                 Text(
-                    stringResource(R.string.next),
+                    LocalStrings.current.navigation.next,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp)
                 )
@@ -255,7 +260,7 @@ private fun OnboardingThemeChooser(itsvm: IconThemeVM, onNext: () -> Unit, onBac
     val scope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.SpaceBetween) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("Choose a theme", style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold)
+            Text(LocalStrings.current.chooseIconTheme, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold)
             FlowRow (
                 modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(0.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -323,14 +328,14 @@ private fun OnboardingThemeChooser(itsvm: IconThemeVM, onNext: () -> Unit, onBac
             TextButton(onClick = onBack, shape = MaterialTheme.shapes.extraSmall) {
                 Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
                 Text(
-                    stringResource(R.string.back),
+                    LocalStrings.current.navigation.back,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp)
                 )
             }
             Button(onClick = onNext, shape = MaterialTheme.shapes.extraSmall) {
                 Text(
-                    stringResource(R.string.complete),
+                    LocalStrings.current.navigation.finish,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp)
                 )

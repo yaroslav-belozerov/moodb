@@ -92,5 +92,6 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.coil)
     implementation(libs.coil.compose)
-    
+    implementation(libs.lyricist)
+    ksp(libs.lyricist.processor)
 }

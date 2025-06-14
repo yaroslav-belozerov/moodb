@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.navOptions
+import cafe.adriel.lyricist.LocalStrings
 import com.yaabelozerov.moodb.R
 import com.yaabelozerov.moodb.data.icons.DualImageResource
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
@@ -123,7 +124,7 @@ fun MainScreen(
                 currentEdit = RecordEntity(0, pickerDate, DefaultMoodType.ANXIOUS, "")
             }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = stringResource(id = R.string.add), modifier = Modifier.padding(top = 2.dp))
+                    Text(text = LocalStrings.current.edit.add, modifier = Modifier.padding(top = 2.dp))
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 }
             }
@@ -285,10 +286,11 @@ fun MainScreen(
                                             .padding(8.dp)) {
                                         Text(
                                             text = if (date.dayOfYear == LocalDate.now().dayOfYear && date.year == LocalDate.now().year) {
-                                                stringResource(id = R.string.today)
+                                                LocalStrings.current.today
                                             } else {
                                                 "${date.dayOfMonth} ${
                                                     date.month.display(
+                                                        LocalStrings.current.localeTag,
                                                         TextStyle.FULL
                                                     )
                                                 }"
@@ -348,7 +350,7 @@ fun MainScreen(
                                                 shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.padding(top = 2.dp), onClick = {
                                                     creating = false
                                                 }) {
-                                                Text(text = stringResource(id = R.string.cancel))
+                                                Text(text = LocalStrings.current.navigation.cancel)
                                             }
                                             Button(
                                                 shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.padding(top = 2.dp), onClick = {
@@ -368,7 +370,7 @@ fun MainScreen(
                                                     }
                                                     creating = false
                                                 }) {
-                                                Text(text = stringResource(id = R.string.save))
+                                                Text(text = LocalStrings.current.edit.save)
                                             }
                                         }
                                     }
@@ -383,7 +385,7 @@ fun MainScreen(
                                     TextButton(shape = MaterialTheme.shapes.extraSmall, onClick = {
                                         pickerShown = false
                                     }) {
-                                        Text(text = stringResource(id = R.string.cancel))
+                                        Text(text = LocalStrings.current.navigation.cancel)
                                     }
                                 },
                                 confirmButton = {
@@ -397,7 +399,7 @@ fun MainScreen(
                                                 currentEdit?.copy(timestamp = picker.selectedDateMillis!!)
                                                     ?: currentEdit
                                         }) {
-                                        Text(text = stringResource(id = R.string.save))
+                                        Text(text = LocalStrings.current.edit.save)
                                     }
                                 }) {
                                 DatePicker(state = picker, headline = {
@@ -408,10 +410,11 @@ fun MainScreen(
                                     )
                                     Text(
                                         text = if (date.dayOfYear == LocalDate.now().dayOfYear && date.year == LocalDate.now().year) {
-                                            stringResource(id = R.string.today)
+                                            LocalStrings.current.today
                                         } else {
                                             "${date.dayOfMonth} ${
                                                 date.month.display(
+                                                    LocalStrings.current.localeTag,
                                                     TextStyle.FULL
                                                 )
                                             }"

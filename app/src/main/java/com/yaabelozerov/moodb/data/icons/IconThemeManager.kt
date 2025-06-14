@@ -8,6 +8,7 @@ import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.model.IconTheme
 import com.yaabelozerov.moodb.data.model.ThemeList
 import com.yaabelozerov.moodb.di.AppModule
+import com.yaabelozerov.moodb.di.BaseApplication
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,6 @@ data class DualImageResource(val resId: Int? = null, val filePath: String? = nul
 
 class IconThemeManager @Inject constructor(
     @ApplicationContext private val app: Context,
-    private val dataStoreManager: AppModule.DataStoreManager,
     val iconManager: IconManager,
     private val moshi: Moshi
 ) {
@@ -48,7 +48,7 @@ class IconThemeManager @Inject constructor(
     }
 
     private suspend fun fetchCustomIconThemeOrDefault(themeName: String) {
-        dataStoreManager.get(SK.CustomIconThemes).first().let {
+        BaseApplication.dataStoreManager.get(SK.CustomIconThemes).first().let {
             if (it.isBlank()) fetchTheme("SIMPLE")
             else {
                 val theme = ad.fromJson(it)!!.list.findLast { it.name == themeName }
