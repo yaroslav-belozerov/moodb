@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
 import cafe.adriel.lyricist.ProvideStrings
 import cafe.adriel.lyricist.rememberStrings
+import com.yaabelozerov.moodb.BuildConfig
 import com.yaabelozerov.moodb.di.BaseApplication
 import com.yaabelozerov.moodb.presentation.screens.settings.SettingsVM
 import com.yaabelozerov.moodb.onboarding.FirstTimeScreen
@@ -26,6 +27,7 @@ import com.yaabelozerov.moodb.presentation.theme.MoodbTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -49,6 +51,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         itsvm.setIconPicker {
             pickPng.launch(

@@ -3,7 +3,6 @@ package com.yaabelozerov.moodb.presentation.screens.icontheme
 import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
-import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +36,7 @@ class IconThemeVM @Inject constructor(
 ) : ViewModel() {
 
     private val _iconPicker =
-        MutableStateFlow<() -> Unit> { Log.e("SettingsViewModel", "Picker not set!") }
+        MutableStateFlow<() -> Unit> { Timber.tag("SettingsViewModel").e("Picker not set!") }
     private val _iconType = MutableStateFlow<Pair<String, DefaultMoodType>?>(null)
     val iconType = _iconType.asStateFlow()
 
@@ -91,7 +91,7 @@ class IconThemeVM @Inject constructor(
                     } else {
                         _customThemes.update {
                             ad.fromJson(got)!!
-                        }.also { Log.i("custom themes got", got) }
+                        }.also { Timber.tag("custom themes got").i(got) }
                     }
                 }
                 fetchIconsOnce()
@@ -113,7 +113,7 @@ class IconThemeVM @Inject constructor(
     }
 
     fun setIconPath(pack: String, type: DefaultMoodType, path: String) {
-        Log.i("setIconPack", "$pack $type $path")
+        Timber.tag("setIconPack").i("$pack $type $path")
         viewModelScope.launch {
             BaseApplication.dataStoreManager.set(
                 SK.CustomIconThemes, ad.toJson(
@@ -129,7 +129,7 @@ class IconThemeVM @Inject constructor(
     }
 
     fun removeFile(pack: String, type: DefaultMoodType, path: String) {
-        Log.i("removeFile", "$pack $type")
+        Timber.tag("removeFile").i("$pack $type")
         viewModelScope.launch {
             BaseApplication.dataStoreManager.set(
                 SK.CustomIconThemes, ad.toJson(
@@ -216,7 +216,7 @@ class IconThemeVM @Inject constructor(
                     val ad = moshi.adapter(ThemeList::class.java).serializeNulls()
                     val lst = ad.fromJson(themes)!!.list
 
-                    Log.i("remove", "$pack $lst")
+                    Timber.tag("remove").i("$pack $lst")
 
                     BaseApplication.dataStoreManager.set(
                         SK.CustomIconThemes, ad.toJson(ThemeList(lst.filter { it.name != pack }))

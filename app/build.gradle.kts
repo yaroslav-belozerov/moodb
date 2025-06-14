@@ -43,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
@@ -94,4 +95,5 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.lyricist)
     ksp(libs.lyricist.processor)
+    implementation(libs.timber)
 }

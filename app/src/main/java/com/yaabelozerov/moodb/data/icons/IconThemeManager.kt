@@ -1,7 +1,6 @@
 package com.yaabelozerov.moodb.data.icons
 
 import android.content.Context
-import android.util.Log
 import com.squareup.moshi.Moshi
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 data class DualImageResource(val resId: Int? = null, val filePath: String? = null, val rounding: Float = 0f, val tinted: Boolean = false)
@@ -34,14 +34,14 @@ class IconThemeManager @Inject constructor(
         withContext(Dispatchers.IO) {
             try {
                 val theme = IconTheme.valueOf(s)
-                Log.i("IconInterceptor", "Loading default theme $s")
+                Timber.tag("IconInterceptor").i("Loading default theme $s")
                 _currIconTheme.update {
                     DefaultMoodType.entries.associateWith {
                         DualImageResource(resId = theme.mapToIconResource(it), tinted = theme.tinted)
                     }
-                }.also { Log.i("fetchTheme", _currIconTheme.value.toString()) }
+                }.also { Timber.tag("fetchTheme").i(_currIconTheme.value.toString()) }
             } catch (e: Exception) {
-                Log.i("IconInterceptor", "Default theme $s not found")
+                Timber.tag("IconInterceptor").i("Default theme $s not found, $e")
                 fetchCustomIconThemeOrDefault(s)
             }
         }
@@ -52,7 +52,7 @@ class IconThemeManager @Inject constructor(
             if (it.isBlank()) fetchTheme("SIMPLE")
             else {
                 val theme = ad.fromJson(it)!!.list.findLast { it.name == themeName }
-                    .also { Log.i("theme", it.toString()) }
+                    .also { Timber.tag("theme").i(it.toString()) }
                 if (theme != null) {
                     _currIconTheme.update {
                         DefaultMoodType.entries.associateWith { type ->

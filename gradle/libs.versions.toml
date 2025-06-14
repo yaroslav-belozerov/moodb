@@ -20,6 +20,7 @@ moshiKotlin = "1.15.1"
 navigationCompose = "2.9.0"
 roomRuntime = "2.7.1"
 lyricist = "1.7.0"
+timber = "5.0.1"
 
 
 [libraries]
@@ -57,6 +58,7 @@ kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImage" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlinCodegen" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
