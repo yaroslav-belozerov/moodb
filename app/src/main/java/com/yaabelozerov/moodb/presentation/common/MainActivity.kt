@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             )
             LaunchedEffect(localeTag) {
                 if (localeTag.isNotBlank()) {
-                    mvm.fetchMonths()
+                    mvm.groupRecordsByMonthDay()
                 }
             }
 
