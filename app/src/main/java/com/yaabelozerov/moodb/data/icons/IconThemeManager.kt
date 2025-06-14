@@ -1,13 +1,13 @@
 package com.yaabelozerov.moodb.data.icons
 
 import android.content.Context
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.model.IconTheme
 import com.yaabelozerov.moodb.data.model.ThemeList
-import com.yaabelozerov.moodb.di.AppModule
-import com.yaabelozerov.moodb.di.BaseApplication
+import com.yaabelozerov.moodb.di.MainApplication
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,15 +20,12 @@ import javax.inject.Inject
 
 data class DualImageResource(val resId: Int? = null, val filePath: String? = null, val rounding: Float = 0f, val tinted: Boolean = false)
 
-class IconThemeManager @Inject constructor(
-    @ApplicationContext private val app: Context,
-    val iconManager: IconManager,
-    private val moshi: Moshi
+class IconThemeManager(
+    val iconManager: IconManager = MainApplication.iconManager,
+    private val ad: JsonAdapter<ThemeList> = MainApplication.themeListJsonAdapter,
 ) {
     private val _currIconTheme = MutableStateFlow<Map<DefaultMoodType, DualImageResource>?>(null)
     val currIconTheme = _currIconTheme.asStateFlow()
-
-    private val ad = moshi.adapter(ThemeList::class.java).serializeNulls()
 
     suspend fun fetchTheme(s: String) {
         withContext(Dispatchers.IO) {
@@ -48,7 +45,7 @@ class IconThemeManager @Inject constructor(
     }
 
     private suspend fun fetchCustomIconThemeOrDefault(themeName: String) {
-        BaseApplication.dataStoreManager.get(SK.CustomIconThemes).first().let {
+        MainApplication.dataStoreManager.get(SK.CustomIconThemes).first().let {
             if (it.isBlank()) fetchTheme("SIMPLE")
             else {
                 val theme = ad.fromJson(it)!!.list.findLast { it.name == themeName }

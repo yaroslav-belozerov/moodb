@@ -61,5 +61,5 @@ val LocalizationRU = Localization(
             DefaultMoodType.ANNOYED -> "Раздражённый"
             DefaultMoodType.OUTRAGED -> "Яростный"
         }
-    }
+    }, theme = "Тема",
 )

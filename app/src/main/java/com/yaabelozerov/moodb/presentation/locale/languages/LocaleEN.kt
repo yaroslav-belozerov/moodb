@@ -61,5 +61,6 @@ val LocalizationEN = Localization(
             DefaultMoodType.ANGRY -> "Angry"
             DefaultMoodType.OUTRAGED -> "Outraged"
         }
-    }
+    },
+    theme = "Theme"
 )

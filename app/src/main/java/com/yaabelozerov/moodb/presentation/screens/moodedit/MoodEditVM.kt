@@ -3,16 +3,15 @@ package com.yaabelozerov.moodb.presentation.screens.moodedit
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.model.Category
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.model.MoodList
 import com.yaabelozerov.moodb.data.model.MoodType
-import com.yaabelozerov.moodb.di.AppModule
-import com.yaabelozerov.moodb.di.BaseApplication
+import com.yaabelozerov.moodb.di.MainApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,10 +21,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@HiltViewModel
-class MoodEditVM @Inject constructor(
-    @ApplicationContext private val app: Context,
-    private val moshi: Moshi
+class MoodEditVM(
+    private val ad: JsonAdapter<MoodList> = MainApplication.moodListJsonAdapter,
 ) : ViewModel() {
 
     private val _currentMoodTypes = MutableStateFlow(emptyList<MoodType>())
@@ -33,13 +30,12 @@ class MoodEditVM @Inject constructor(
 
     fun reloadMoods() {
         viewModelScope.launch(Dispatchers.IO) {
-            BaseApplication.dataStoreManager.get(SK.MoodTypes).first().let { moodTypes ->
-                val ad = moshi.adapter(MoodList::class.java).serializeNulls()
+            MainApplication.dataStoreManager.get(SK.MoodTypes).first().let { moodTypes ->
                 if (moodTypes == SK.MoodTypes.default) {
                     val lst = DefaultMoodType.entries.map {
                         MoodType(it, null, null)
                     }
-                    BaseApplication.dataStoreManager.set(
+                    MainApplication.dataStoreManager.set(
                         SK.MoodTypes, ad.toJson(MoodList(list = lst))
                     )
                     _currentMoodTypes.update { lst }
@@ -53,18 +49,17 @@ class MoodEditVM @Inject constructor(
     }
 
     fun setNewType(
-        type: MoodType, newName: String, newCategory: Category
+        type: MoodType, originalName: String, newName: String, newCategory: Category
     ) {
         viewModelScope.launch {
-            BaseApplication.dataStoreManager.set(
+            MainApplication.dataStoreManager.set(
                 SK.MoodTypes,
-                moshi.adapter(MoodList::class.java).serializeNulls()
-                    .toJson(MoodList(list = _currentMoodTypes.value.map { curr ->
+                ad.toJson(MoodList(list = _currentMoodTypes.value.map { curr ->
                         if (type.defaultMoodType == curr.defaultMoodType) {
                             MoodType(
                                 curr.defaultMoodType,
                                 if (newCategory == type.defaultMoodType.category) null else newCategory,
-                                if (newName == app.getString(type.defaultMoodType.nameRes) || newName.isBlank()) null else newName
+                                if (newName == originalName || newName.isBlank()) null else newName
                             )
                         } else {
                             curr
@@ -76,19 +71,19 @@ class MoodEditVM @Inject constructor(
     }
 
     fun setDefaultType(
-        type: MoodType
+        type: MoodType,
+        originalName: String
     ) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                BaseApplication.dataStoreManager.set(
+                MainApplication.dataStoreManager.set(
                     SK.MoodTypes,
-                    moshi.adapter(MoodList::class.java).serializeNulls()
-                        .toJson(MoodList(list = _currentMoodTypes.value.map { curr ->
+                        ad.toJson(MoodList(list = _currentMoodTypes.value.map { curr ->
                             if (type.defaultMoodType == curr.defaultMoodType) {
                                 MoodType(
                                     curr.defaultMoodType,
                                     curr.defaultMoodType.category,
-                                    app.getString(curr.defaultMoodType.nameRes)
+                                    originalName
                                 )
                             } else {
                                 curr

@@ -2,11 +2,10 @@ package com.yaabelozerov.moodb.presentation.screens.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.room.mood.RecordDao
 import com.yaabelozerov.moodb.data.room.mood.RecordEntity
-import com.yaabelozerov.moodb.di.BaseApplication
+import com.yaabelozerov.moodb.di.MainApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,20 +16,14 @@ import java.time.ZoneId
 import javax.inject.Inject
 import com.yaabelozerov.moodb.util.display
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.newCoroutineContext
-import kotlinx.coroutines.plus
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Month
 import java.time.MonthDay
 import java.time.OffsetTime
 import java.time.YearMonth
 import java.time.ZonedDateTime
 
-@HiltViewModel
-class MainVM @Inject constructor(
-    private val dao: RecordDao
+class MainVM(
+    private val dao: RecordDao = MainApplication.recordDao
 ) : ViewModel() {
     private val _records = MutableStateFlow(emptyMap<YearMonth, Map<MonthDay, RecordEntity>>())
     val records = _records.asStateFlow()

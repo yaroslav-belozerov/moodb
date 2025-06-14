@@ -108,7 +108,7 @@ fun MainScreen(
     }
     Scaffold(bottomBar = {
         BottomAppBar(actions = {
-            IconButton(onClick = { navController.navigate(ND.SettingsScreen.route) }) {
+            IconButton(onClick = { navController.navigate(ND.SettingsRoot) }) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             }
             AnimatedVisibility(lastIndex != pager.currentPage) {

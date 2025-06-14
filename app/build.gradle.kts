@@ -5,6 +5,7 @@ plugins {
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "2.1.21"
 }
 
 android {
@@ -96,4 +97,5 @@ dependencies {
     implementation(libs.lyricist)
     ksp(libs.lyricist.processor)
     implementation(libs.timber)
+    implementation(libs.kotlinx.serialization.json)
 }

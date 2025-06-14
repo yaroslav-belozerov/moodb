@@ -1,28 +1,24 @@
 package com.yaabelozerov.moodb.presentation.common
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.serialization.Serializable
 
-enum class ND(
-    val route: String,
-    val icon: ImageVector? = null,
-    val iconEmpty: ImageVector? = null,
-    val hasBottomBar: Boolean = true
-) { // Nav Destinations
-    MainScreen(
-        "MainScreen", Icons.Filled.Home, Icons.Outlined.Home
-    ),
-    SettingsScreen(
-        "SettingsScreen", Icons.Filled.Settings, Icons.Outlined.Settings
-    ),
-    MoodEditAll("MoodEditAll", hasBottomBar = false), MoodEdit(
-        "MoodEdit", hasBottomBar = false
-    ),
-    IconTheme("IconTheme", hasBottomBar = false);
+@Serializable
+sealed interface ND {
+    @Serializable
+    data object Main : ND
 
-    fun withParam(param: Any) = "${this.route}/$param"
+    @Serializable
+    data object Settings : ND
+
+    @Serializable
+    data object SettingsRoot: ND
+
+    @Serializable
+    data object SettingsMoodEditAll: ND
+
+    @Serializable
+    data class SettingsMoodEditSingle(val index: Int): ND
+
+    @Serializable
+    data object SettingsEditIconTheme: ND
 }

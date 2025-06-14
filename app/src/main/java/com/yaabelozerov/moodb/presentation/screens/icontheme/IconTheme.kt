@@ -58,6 +58,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -100,10 +101,11 @@ fun IconTheme(
     val scroll = exitUntilCollapsedScrollBehavior()
     val chosen by itsvm.currentTheme.collectAsState()
     val themes by itsvm.customThemes.collectAsState()
+    val strings = LocalStrings.current
     Scaffold(topBar = {
         IconThemeTopBar(scroll = scroll, onBack = onExit, actions = {
             IconButton(onClick = {
-                itsvm.createTheme()
+                itsvm.createTheme(strings.theme)
             }) {
                 Icon(
                     imageVector = Icons.Default.Add, contentDescription = null

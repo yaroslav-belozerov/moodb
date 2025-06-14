@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
-import com.yaabelozerov.moodb.di.BaseApplication
+import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.locale.languages.LocalizationEN
 import com.yaabelozerov.moodb.presentation.locale.languages.LocalizationRU
 import kotlinx.coroutines.flow.Flow
@@ -49,20 +49,21 @@ data class Localization(
     val edit: LocaleEdit,
     val settings: LocaleSettings,
     val mood: LocaleMoodCategory,
-    val moodType: (DefaultMoodType) -> String
+    val moodType: (DefaultMoodType) -> String,
+    val theme: String
 )
 
 enum class AvailableLocalizations(val localization: Localization) {
     EN(LocalizationEN), RU(LocalizationRU)
 }
 
-fun readLocaleTag(): Flow<String> = BaseApplication.dataStoreManager.get(SK.LocaleTag).map {
+fun readLocaleTag(): Flow<String> = MainApplication.dataStoreManager.get(SK.LocaleTag).map {
     it.takeIf { it.isNotBlank() } ?: AppCompatDelegate.getApplicationLocales().get(0)
         ?.toLanguageTag() ?: Locale.getDefault().toLanguageTag()
 }
 
 suspend fun setLocaleTag(tag: String) {
-    BaseApplication.dataStoreManager.set(SK.LocaleTag, tag)
+    MainApplication.dataStoreManager.set(SK.LocaleTag, tag)
 }
 
 class LocalizationManager(context: Context) {
