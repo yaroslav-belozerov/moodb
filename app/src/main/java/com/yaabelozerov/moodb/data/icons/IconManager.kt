@@ -2,24 +2,22 @@ package com.yaabelozerov.moodb.data.icons
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
-import javax.inject.Inject
 
-class IconManager @Inject constructor(@ApplicationContext private val app: Context) {
+class IconManager(private val context: Context) {
     suspend fun addIcon(uri: Uri, callback: suspend (String) -> Unit = {}) {
         withContext(Dispatchers.IO) {
             val fileName = System.currentTimeMillis().toString()
-            val dir = File(app.filesDir, "Icons")
+            val dir = File(context.filesDir, "Icons")
             dir.mkdir()
 
             val outFile = File(dir, fileName)
             val outStream = outFile.outputStream()
-            val inStream = app.contentResolver.openInputStream(uri)
-            Log.i("IconManager", "Loading file to ${outFile.absolutePath}")
+            val inStream = context.contentResolver.openInputStream(uri)
+            Timber.tag("IconManager").i("Loading file to ${outFile.absolutePath}")
 
             try {
                 outStream.write(
@@ -39,7 +37,8 @@ class IconManager @Inject constructor(@ApplicationContext private val app: Conte
         withContext(Dispatchers.IO) {
             val file = File(path)
             if (file.exists()) { file.delete() }
-            else { Log.e("deleteIcon", "Icon on path $path does not exist") }
+            else {
+                Timber.tag("deleteIcon").e("Icon on path $path does not exist") }
         }
     }
 }

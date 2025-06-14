@@ -58,10 +58,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cafe.adriel.lyricist.LocalStrings
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import com.yaabelozerov.moodb.R
@@ -81,7 +83,7 @@ fun IconThemeTopBar(
     scroll: TopAppBarScrollBehavior, onBack: (() -> Unit)?, actions: @Composable RowScope.() -> Unit
 ) {
     TopBar(
-        name = stringResource(id = R.string.icon_theme),
+        name = LocalStrings.current.settings.iconTheme,
         scroll = scroll,
         onBack = onBack,
         actions = actions
@@ -99,10 +101,11 @@ fun IconTheme(
     val scroll = exitUntilCollapsedScrollBehavior()
     val chosen by itsvm.currentTheme.collectAsState()
     val themes by itsvm.customThemes.collectAsState()
+    val strings = LocalStrings.current
     Scaffold(topBar = {
         IconThemeTopBar(scroll = scroll, onBack = onExit, actions = {
             IconButton(onClick = {
-                itsvm.createTheme()
+                itsvm.createTheme(strings.theme)
             }) {
                 Icon(
                     imageVector = Icons.Default.Add, contentDescription = null
@@ -164,7 +167,7 @@ fun DefaultTheme(
             )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = stringResource(id = theme.nameRes), fontSize = 32.sp)
+            Text(text = theme.name, fontSize = 32.sp)
             Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),

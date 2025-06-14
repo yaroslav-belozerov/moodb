@@ -5,6 +5,7 @@ plugins {
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "2.1.21"
 }
 
 android {
@@ -43,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
@@ -92,5 +94,8 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.coil)
     implementation(libs.coil.compose)
-    
+    implementation(libs.lyricist)
+    ksp(libs.lyricist.processor)
+    implementation(libs.timber)
+    implementation(libs.kotlinx.serialization.json)
 }

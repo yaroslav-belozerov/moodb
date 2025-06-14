@@ -8,17 +8,24 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
+import cafe.adriel.lyricist.ProvideStrings
+import cafe.adriel.lyricist.rememberStrings
+import com.yaabelozerov.moodb.BuildConfig
+import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.screens.settings.SettingsVM
 import com.yaabelozerov.moodb.onboarding.FirstTimeScreen
+import com.yaabelozerov.moodb.presentation.locale.AvailableLocalizations
 import com.yaabelozerov.moodb.presentation.screens.moodedit.MoodEditVM
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconThemeVM
 import com.yaabelozerov.moodb.presentation.screens.main.MainVM
 import com.yaabelozerov.moodb.presentation.theme.MoodbTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val mvm by viewModels<MainVM>()
     private val svm by viewModels<SettingsVM>()
@@ -41,6 +48,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+
         itsvm.setIconPicker {
             pickPng.launch(
                 PickVisualMediaRequest.Builder().setMediaType(
@@ -49,22 +60,35 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        setContent {
-            val navController = rememberNavController()
 
-            MoodbTheme {
-                val isFirstTime = svm.firstTimeOpen.collectAsState().value
-                Crossfade(targetState = isFirstTime) { firstTime ->
-                    if (firstTime == true) {
-                        FirstTimeScreen(svm = svm, itsvm = itsvm)
-                    } else if (firstTime == false) {
-                        ContentNavHost(
-                            navController = navController,
-                            mvm = mvm,
-                            svm = svm,
-                            itsvm = itsvm,
-                            mevm = mevm,
-                        )
+        setContent {
+            val localeTag by MainApplication.localizationManager.localeTag.collectAsState("")
+            val lyricist = rememberStrings(
+                translations = AvailableLocalizations.entries.associate { it.localization.localeTag to it.localization },
+                currentLanguageTag = localeTag
+            )
+            LaunchedEffect(localeTag) {
+                if (localeTag.isNotBlank()) {
+                    mvm.groupRecordsByMonthDay()
+                }
+            }
+
+            ProvideStrings(
+                lyricist = lyricist,
+            ) {
+                MoodbTheme {
+                    val isFirstTime = svm.firstTimeOpen.collectAsState().value
+                    Crossfade(targetState = isFirstTime) { firstTime ->
+                        if (firstTime == true) {
+                            FirstTimeScreen(svm = svm, itsvm = itsvm)
+                        } else if (firstTime == false) {
+                            ContentNavHost(
+                                mvm = mvm,
+                                svm = svm,
+                                itsvm = itsvm,
+                                mevm = mevm,
+                            )
+                        }
                     }
                 }
             }

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import cafe.adriel.lyricist.LocalStrings
 import com.yaabelozerov.moodb.R
 import com.yaabelozerov.moodb.presentation.common.MenuRoute
 import com.yaabelozerov.moodb.presentation.common.TopBar
@@ -28,7 +29,7 @@ import com.yaabelozerov.moodb.presentation.common.TopBar
 fun SettingsScreen(modifier: Modifier = Modifier, routes: List<MenuRoute>, onBack: () -> Unit) {
     val scroll = exitUntilCollapsedScrollBehavior()
     Scaffold(topBar = {
-        TopBar(name = stringResource(id = R.string.settings), scroll = scroll, onBack = onBack)
+        TopBar(name = LocalStrings.current.settings.settings, scroll = scroll, onBack = onBack)
     }) { innerPadding ->
         Column(modifier = modifier.padding(innerPadding)) {
             routes.map { route ->

@@ -19,6 +19,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.lyricist.LocalStrings
 import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
 import com.yaabelozerov.moodb.R
@@ -40,7 +41,7 @@ fun MoodEditAll(
 ) {
     val scroll = exitUntilCollapsedScrollBehavior()
     Scaffold(topBar = {
-        TopBar(name = stringResource(id = R.string.edit_mood_types), scroll = scroll, onBack = onBack)
+        TopBar(name = LocalStrings.current.settings.moodTypes, scroll = scroll, onBack = onBack)
     }) { innerPadding ->
         LazyColumn(
             modifier = modifier
@@ -67,7 +68,7 @@ fun MoodEditAll(
                     }
                     Text(
                         modifier = Modifier.padding(16.dp),
-                        text = type.customName ?: stringResource(id = type.defaultMoodType.nameRes),
+                        text = type.customName ?: LocalStrings.current.moodType(type.defaultMoodType),
                         fontSize = 24.sp
                     )
                 }
