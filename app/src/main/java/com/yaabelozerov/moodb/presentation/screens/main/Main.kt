@@ -1,5 +1,6 @@
 package com.yaabelozerov.moodb.presentation.screens.main
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.slideIn
 import androidx.compose.foundation.BorderStroke
@@ -102,19 +103,23 @@ fun MainScreen(
     var mapShown by remember {
         mutableStateOf(false)
     }
-    val sf = mvm.showFirst.collectAsState().value
+    val sf = mvm.showFirst.collectAsState().value ?: return
     val scope = rememberCoroutineScope()
+    val pager = rememberPagerState(
+        initialPage = sf - 1, pageCount = { records.size })
     Scaffold(bottomBar = {
         BottomAppBar(actions = {
             IconButton(onClick = { navController.navigate(ND.SettingsScreen.route)}) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             }
-            IconButton(onClick = {
-                if (navController.currentDestination?.route != ND.MainScreen.route) navController.navigate(
-                    ND.MainScreen.route
-                )
-            }) {
-                Icon(imageVector = Icons.Default.Home, contentDescription = null)
+            AnimatedVisibility(sf - 1 != pager.currentPage) {
+                IconButton(onClick = {
+                    scope.launch {
+                        pager.animateScrollToPage(sf-1)
+                    }
+                }) {
+                    Icon(imageVector = Icons.Default.Home, contentDescription = null)
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(shape = MaterialTheme.shapes.extraSmall, onClick = {
@@ -132,9 +137,6 @@ fun MainScreen(
     }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             Crossfade(targetState = sf) { showFirst ->
-                if (showFirst != null) {
-                    val pager = rememberPagerState(
-                        initialPage = showFirst - 1, pageCount = { records.size })
                     VerticalPager(modifier = Modifier.fillMaxWidth(), state = pager) { page ->
                         Column(modifier = Modifier.fillMaxWidth()) {
                             val current = records.keys.find { it.first == page + 1 }
@@ -424,7 +426,6 @@ fun MainScreen(
                             }
                         }
                     }
-                }
             }
         }
     }
