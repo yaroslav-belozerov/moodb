@@ -1,25 +1,23 @@
 package com.yaabelozerov.moodb.presentation.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.di.MainApplication
+import com.yaabelozerov.moodb.presentation.theme.colors.DarkColorScheme
+import com.yaabelozerov.moodb.presentation.theme.colors.GreenLightColorScheme
+import com.yaabelozerov.moodb.presentation.theme.colors.LightColorScheme
 import kotlinx.coroutines.flow.first
 
 enum class ColorSchemes(val key: String, val scheme: ColorScheme?) {
-    Light("light", LightColorScheme), Dark("dark", DarkColorScheme), Adapt("adapt", null)
+    Light("light", LightColorScheme), Dark("dark", DarkColorScheme), Adapt("adapt", null), Green("green",
+        GreenLightColorScheme
+    )
 }
 
 @Composable

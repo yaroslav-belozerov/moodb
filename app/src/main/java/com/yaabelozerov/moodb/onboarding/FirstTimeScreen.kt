@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -219,7 +220,8 @@ private fun WelcomeLanguage(
                 .background(
                     MaterialTheme.colorScheme.primaryContainer
                 )
-                .aspectRatio(1f).fillMaxWidth())
+                .aspectRatio(1f)
+                .fillMaxWidth())
             Column(verticalArrangement = Arrangement.spacedBy((-16).dp)) {
                 Text(
                     LocalStrings.current.welcomeTo,
@@ -377,7 +379,8 @@ private fun OnboardingThemeChooser(
                                     }
                                 }
                                 Crossfade(currentIndex) { index ->
-                                    val iconPath = theme.mapToIconPath(DefaultMoodType.entries[index])
+                                    val iconPath =
+                                        theme.mapToIconPath(DefaultMoodType.entries[index])
                                     DualAsyncImage(
                                         imageModifier = Modifier.size(72.dp),
                                         dualIconResource = DualImageResource(
@@ -398,17 +401,26 @@ private fun OnboardingThemeChooser(
                     style = MaterialTheme.typography.displayMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     ColorSchemes.entries.forEach { theme ->
-                        val themeName by MainApplication.dataStoreManager.get(SK.Theme).collectAsState("")
-                        if (theme.key == themeName) {
-                            Button(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraSmall, onClick = { scope.launch {
-                                MainApplication.dataStoreManager.set(SK.Theme, theme.key)
-                            } }) { Text(LocalStrings.current.colorTheme(theme)) }
-                        } else {
-                            TextButton(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraSmall, onClick = { scope.launch {
-                                MainApplication.dataStoreManager.set(SK.Theme, theme.key)
-                            } }) { Text(LocalStrings.current.colorTheme(theme)) }
+                        val themeName by MainApplication.dataStoreManager.get(SK.Theme)
+                            .collectAsState("")
+                        Button(
+                            shape = MaterialTheme.shapes.extraSmall,
+                            onClick = {
+                                scope.launch {
+                                    MainApplication.dataStoreManager.set(SK.Theme, theme.key)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = if (theme.key == themeName) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background),
+                        ) {
+                            Text(
+                                LocalStrings.current.colorTheme(theme),
+                                color = if (theme.key == themeName) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
+                            )
                         }
                     }
                 }

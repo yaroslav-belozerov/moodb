@@ -72,6 +72,7 @@ val LocalizationEN = Localization(
             ColorSchemes.Light -> "Light"
             ColorSchemes.Dark -> "Dark"
             ColorSchemes.Adapt -> "Adaptive"
+            ColorSchemes.Green -> "Green"
         }
     }
 )

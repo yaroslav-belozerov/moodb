@@ -71,6 +71,7 @@ val LocalizationRU = Localization(
             ColorSchemes.Light -> "Светлая"
             ColorSchemes.Dark -> "Темная"
             ColorSchemes.Adapt -> "Авто"
+            ColorSchemes.Green -> "Зелёная"
         }
     }
 )
