@@ -8,17 +8,22 @@
 ## ⏩ Table of contents
 - [Status](#-project-status)
 - [Features](#-features)
-- [Installation](#-building-for-android)
+- [Installation](#-installation)
 
 ## 👁 Project Status
-❄ Development halted for now. Feature requests are still accepted.
+🐘 Developing in free time. Feature requests are welcome.
 
 ## 💡 Features
 - [x] Record your mood every day 
 - [x] View the monthly calendar 
 - [x] Create customized icon packs to fit your exact mood 
+- [x] Jump easily between dates
 
-## 🏗 Building for Android
+## 📲 Installation
+> Android only
+### ⌛ Get the APK 
+[Download the latest automatic release](https://github.com/yaroslav-belozerov/moodb/releases/tag/latest)
+### 🏗 Build 
 ```sh  
 git clone git@github.com:yaroslav-belozerov/moodb.git
 cd ./moodb
@@ -27,7 +32,7 @@ cd ./moodb
 or download as a [zip file](https://github.com/yaroslav-belozerov/moodb/archive/refs/heads/main.zip)
 
 ## 👥 Contributions
-Any suggestions or changes are reviewed via GitHub issues. Please open one if you would like to provide feedback or contribute.
+Feel free to open a GitHub issue or pull request if you want to contribute with code, bug report, or feature request.
 
 ## ⚖ License
 The project is licensed under the MIT License. The libraries used are subject to their own licenses.
