@@ -27,6 +27,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,15 +86,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.lyricist.LocalStrings
+import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.data.icons.DualImageResource
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.data.model.IconTheme
+import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.common.DualAsyncImage
 import com.yaabelozerov.moodb.presentation.common.LanguageChoiceSheet
 import com.yaabelozerov.moodb.presentation.locale.AvailableLocalizations
 import com.yaabelozerov.moodb.presentation.locale.setLocaleTag
 import com.yaabelozerov.moodb.presentation.screens.settings.SettingsVM
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconThemeVM
+import com.yaabelozerov.moodb.presentation.theme.ColorSchemes
 import com.yaabelozerov.moodb.presentation.theme.extraFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -285,103 +289,126 @@ private fun OnboardingThemeChooser(
             .padding(24.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    LocalStrings.current.chooseIconTheme,
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    LocalStrings.current.youCanAddThemeLater,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(0.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconTheme.entries.forEach {
-                    var currentIndex by remember { mutableIntStateOf(0) }
-                    LaunchedEffect(Unit) {
-                        scope.launch {
-                            while (true) {
-                                currentIndex =
-                                    if (currentIndex == DefaultMoodType.entries.size - 1) 0 else currentIndex + 1; delay(
-                                    1000
-                                )
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        LocalStrings.current.chooseIconTheme,
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        LocalStrings.current.youCanAddThemeLater,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconTheme.entries.forEach {
+                        var currentIndex by remember { mutableIntStateOf(0) }
+                        LaunchedEffect(Unit) {
+                            scope.launch {
+                                while (true) {
+                                    currentIndex =
+                                        if (currentIndex == DefaultMoodType.entries.size - 1) 0 else currentIndex + 1; delay(
+                                        1000
+                                    )
+                                }
+                            }
+                        }
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            border = CardDefaults.outlinedCardBorder().copy(
+                                brush = SolidColor(if (it.name == chosen) MaterialTheme.colorScheme.primary else Color.Transparent),
+                                width = if (it.name == chosen) 3.dp else 1.dp
+                            ),
+                            shape = MaterialTheme.shapes.extraSmall,
+                            onClick = { itsvm.setTheme(it.name) },
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(it.name, fontFamily = extraFamily, fontSize = 28.sp)
+                                AnimatedContent(currentIndex, transitionSpec = {
+                                    (slideInHorizontally() + scaleIn() + fadeIn()).togetherWith(
+                                        slideOutHorizontally { it / 2 } + scaleOut() + fadeOut())
+                                }) { index ->
+                                    DualAsyncImage(
+                                        imageModifier = Modifier.size(64.dp),
+                                        dualIconResource = DualImageResource(
+                                            resId = it.mapToIconResource(DefaultMoodType.entries[index]),
+                                            tinted = it.tinted
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        border = CardDefaults.outlinedCardBorder().copy(
-                            brush = SolidColor(if (it.name == chosen) MaterialTheme.colorScheme.primary else Color.Transparent),
-                            width = if (it.name == chosen) 3.dp else 1.dp
-                        ),
-                        shape = MaterialTheme.shapes.extraSmall,
-                        onClick = { itsvm.setTheme(it.name) },
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                    themes.list.forEach { theme ->
+                        OutlinedCard(
+                            shape = MaterialTheme.shapes.extraSmall,
+                            onClick = { itsvm.setTheme(theme.name) },
+                            colors = CardDefaults.outlinedCardColors()
+                                .copy(containerColor = if (theme.name == chosen) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent)
                         ) {
-                            Text(it.name, fontFamily = extraFamily, fontSize = 28.sp)
-                            AnimatedContent(currentIndex, transitionSpec = {
-                                (slideInHorizontally() + scaleIn() + fadeIn()).togetherWith(
-                                    slideOutHorizontally { it / 2 } + scaleOut() + fadeOut())
-                            }) { index ->
-                                DualAsyncImage(
-                                    imageModifier = Modifier.size(64.dp),
-                                    dualIconResource = DualImageResource(
-                                        resId = it.mapToIconResource(DefaultMoodType.entries[index]),
-                                        tinted = it.tinted
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(theme.name, style = MaterialTheme.typography.titleLarge)
+
+                                var currentIndex by remember { mutableIntStateOf(0) }
+                                LaunchedEffect(Unit) {
+                                    scope.launch {
+                                        while (true) {
+                                            currentIndex =
+                                                if (currentIndex == DefaultMoodType.entries.size - 1) 0 else currentIndex + 1; delay(
+                                                1000
+                                            )
+                                        }
+                                    }
+                                }
+                                Crossfade(currentIndex) { index ->
+                                    val iconPath = theme.mapToIconPath(DefaultMoodType.entries[index])
+                                    DualAsyncImage(
+                                        imageModifier = Modifier.size(72.dp),
+                                        dualIconResource = DualImageResource(
+                                            IconTheme.SIMPLE.mapToIconResource(
+                                                DefaultMoodType.entries[index]
+                                            ), iconPath, theme.iconRounding, IconTheme.SIMPLE.tinted
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
                 }
-                themes.list.forEach { theme ->
-                    OutlinedCard(
-                        shape = MaterialTheme.shapes.extraSmall,
-                        onClick = { itsvm.setTheme(theme.name) },
-                        colors = CardDefaults.outlinedCardColors()
-                            .copy(containerColor = if (theme.name == chosen) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(theme.name, style = MaterialTheme.typography.titleLarge)
-
-                            var currentIndex by remember { mutableIntStateOf(0) }
-                            LaunchedEffect(Unit) {
-                                scope.launch {
-                                    while (true) {
-                                        currentIndex =
-                                            if (currentIndex == DefaultMoodType.entries.size - 1) 0 else currentIndex + 1; delay(
-                                            1000
-                                        )
-                                    }
-                                }
-                            }
-                            Crossfade(currentIndex) { index ->
-                                val iconPath = theme.mapToIconPath(DefaultMoodType.entries[index])
-                                DualAsyncImage(
-                                    imageModifier = Modifier.size(72.dp),
-                                    dualIconResource = DualImageResource(
-                                        IconTheme.SIMPLE.mapToIconResource(
-                                            DefaultMoodType.entries[index]
-                                        ), iconPath, theme.iconRounding, IconTheme.SIMPLE.tinted
-                                    )
-                                )
-                            }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    LocalStrings.current.chooseColorTheme,
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ColorSchemes.entries.forEach { theme ->
+                        val themeName by MainApplication.dataStoreManager.get(SK.Theme).collectAsState("")
+                        if (theme.key == themeName) {
+                            Button(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraSmall, onClick = { scope.launch {
+                                MainApplication.dataStoreManager.set(SK.Theme, theme.key)
+                            } }) { Text(LocalStrings.current.colorTheme(theme)) }
+                        } else {
+                            TextButton(modifier = Modifier.weight(1f), shape = MaterialTheme.shapes.extraSmall, onClick = { scope.launch {
+                                MainApplication.dataStoreManager.set(SK.Theme, theme.key)
+                            } }) { Text(LocalStrings.current.colorTheme(theme)) }
                         }
                     }
                 }

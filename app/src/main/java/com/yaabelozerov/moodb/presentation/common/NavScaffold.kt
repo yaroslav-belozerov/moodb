@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,12 +19,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -33,6 +31,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import cafe.adriel.lyricist.LocalStrings
+import com.yaabelozerov.moodb.data.datastore.SK
+import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.screens.main.MainScreen
 import com.yaabelozerov.moodb.presentation.screens.moodedit.MoodEdit
 import com.yaabelozerov.moodb.presentation.screens.moodedit.MoodEditAll
@@ -42,6 +42,7 @@ import com.yaabelozerov.moodb.presentation.screens.settings.SettingsVM
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconTheme
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconThemeVM
 import com.yaabelozerov.moodb.presentation.screens.main.MainVM
+import com.yaabelozerov.moodb.presentation.theme.ColorSchemes
 import com.yaabelozerov.moodb.presentation.theme.extraFamily
 import kotlinx.coroutines.launch
 
@@ -88,6 +89,7 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
     ) {
         composable<ND.SettingsRoot> {
             val sheetState = rememberModalBottomSheetState()
+            val colorSheet = rememberModalBottomSheetState()
             val scope = rememberCoroutineScope()
             LanguageChoiceSheet(sheetState)
             val currentTheme = itsvm.currentTheme.collectAsState().value
@@ -106,6 +108,18 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
                         }) {
                         navController.navigate(ND.SettingsEditIconTheme)
                     }, MenuRoute(
+                        icon =  Icons.Default.InvertColors,
+                        name = LocalStrings.current.settings.colorTheme,
+                        details = {
+                            val currName by MainApplication.dataStoreManager.get(SK.Theme).collectAsState("")
+                            val curr = ColorSchemes.entries.find { it.key == currName } ?: ColorSchemes.Light
+                            ThemeChoiceSheet(colorSheet)
+                            Text(text = LocalStrings.current.colorTheme(curr), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 2.dp))
+                        },
+                        onClick = { scope.launch {
+                            colorSheet.show()
+                        } }
+                    ), MenuRoute(
                         Icons.Default.Language,
                         LocalStrings.current.settings.language,
                         {

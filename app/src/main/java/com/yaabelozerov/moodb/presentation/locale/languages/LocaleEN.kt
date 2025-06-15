@@ -7,6 +7,7 @@ import com.yaabelozerov.moodb.presentation.locale.LocaleNavigation
 import com.yaabelozerov.moodb.presentation.locale.LocaleEdit
 import com.yaabelozerov.moodb.presentation.locale.LocaleMoodCategory
 import com.yaabelozerov.moodb.presentation.locale.LocaleSettings
+import com.yaabelozerov.moodb.presentation.theme.ColorSchemes
 
 @LyricistStrings(languageTag = "en", default = true)
 val LocalizationEN = Localization(
@@ -23,6 +24,7 @@ val LocalizationEN = Localization(
     welcomeTo = "Welcome to",
     chooseLanguage = "Choose language",
     chooseIconTheme = "Choose theme",
+    chooseColorTheme = "Choose colors",
     today = "Today",
     edit = LocaleEdit(
         add = "Add",
@@ -34,6 +36,7 @@ val LocalizationEN = Localization(
         moodTypes = "Mood Types",
         iconTheme = "Icon Theme",
         language = "Language",
+        colorTheme = "Colors",
     ),
     mood = LocaleMoodCategory(
         happy = "Happy",
@@ -64,4 +67,11 @@ val LocalizationEN = Localization(
     },
     theme = "Theme",
     youCanAddThemeLater = "You can create your own later",
+    colorTheme = {
+        when (it) {
+            ColorSchemes.Light -> "Light"
+            ColorSchemes.Dark -> "Dark"
+            ColorSchemes.Adapt -> "Adaptive"
+        }
+    }
 )
