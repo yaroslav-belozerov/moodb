@@ -7,6 +7,7 @@ import com.yaabelozerov.moodb.data.model.DefaultMoodType
 import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.locale.languages.LocalizationEN
 import com.yaabelozerov.moodb.presentation.locale.languages.LocalizationRU
+import com.yaabelozerov.moodb.presentation.theme.ColorSchemes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Locale
@@ -26,7 +27,7 @@ data class LocaleEdit(
 )
 
 data class LocaleSettings(
-    val settings: String, val moodTypes: String, val iconTheme: String, val language: String
+    val settings: String, val moodTypes: String, val iconTheme: String, val language: String, val colorTheme: String
 )
 
 data class LocaleMoodCategory(
@@ -45,6 +46,7 @@ data class Localization(
     val welcomeTo: String,
     val chooseLanguage: String,
     val chooseIconTheme: String,
+    val chooseColorTheme: String,
     val today: String,
     val edit: LocaleEdit,
     val settings: LocaleSettings,
@@ -52,6 +54,7 @@ data class Localization(
     val moodType: (DefaultMoodType) -> String,
     val theme: String,
     val youCanAddThemeLater: String,
+    val colorTheme: (ColorSchemes) -> String,
 )
 
 enum class AvailableLocalizations(val localization: Localization) {

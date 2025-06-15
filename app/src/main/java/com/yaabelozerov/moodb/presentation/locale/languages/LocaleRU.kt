@@ -7,6 +7,7 @@ import com.yaabelozerov.moodb.presentation.locale.LocaleNavigation
 import com.yaabelozerov.moodb.presentation.locale.LocaleEdit
 import com.yaabelozerov.moodb.presentation.locale.LocaleMoodCategory
 import com.yaabelozerov.moodb.presentation.locale.LocaleSettings
+import com.yaabelozerov.moodb.presentation.theme.ColorSchemes
 
 @LyricistStrings(languageTag = "ru", default = false)
 val LocalizationRU = Localization(
@@ -23,6 +24,7 @@ val LocalizationRU = Localization(
     welcomeTo = "Добро пожаловать в",
     chooseLanguage = "Выбери язык",
     chooseIconTheme = "Выбери тему",
+    chooseColorTheme = "Выбери цвета",
     today = "Сегодня",
     edit = LocaleEdit(
         add = "Добавить",
@@ -34,6 +36,7 @@ val LocalizationRU = Localization(
         moodTypes = "Типы настроения",
         iconTheme = "Тема иконок",
         language = "Язык",
+        colorTheme = "Цвета",
     ),
     mood = LocaleMoodCategory(
         happy = "Счастливый",
@@ -63,4 +66,12 @@ val LocalizationRU = Localization(
         }
     }, theme = "Тема",
     youCanAddThemeLater = "Свою тему можно создать позже",
+    colorTheme = {
+        when (it) {
+            ColorSchemes.Light -> "Светлая"
+            ColorSchemes.Dark -> "Темная"
+            ColorSchemes.Adapt -> "Авто"
+            ColorSchemes.Green -> "Зелёная"
+        }
+    }
 )

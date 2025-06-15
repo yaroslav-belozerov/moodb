@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,7 +15,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -27,6 +26,7 @@ import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.locale.AvailableLocalizations
 import com.yaabelozerov.moodb.presentation.locale.setLocaleTag
+import com.yaabelozerov.moodb.presentation.theme.ColorSchemes
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +65,54 @@ fun LanguageChoiceSheet(sheetState: SheetState) {
                 ) {
                     Text(
                         text = it.localization.localizedName,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThemeChoiceSheet(sheetState: SheetState) {
+    val scope = rememberCoroutineScope()
+    if (sheetState.isVisible) ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = { scope.launch { sheetState.hide() } },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Default.InvertColors, contentDescription = null)
+                Text(
+                    LocalStrings.current.chooseColorTheme,
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            ColorSchemes.entries.map {
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(), onClick = {
+                        scope.launch {
+                            MainApplication.dataStoreManager.set(SK.Theme, it.key)
+                            sheetState.hide()
+                        }
+                    }, shape = MaterialTheme.shapes.extraSmall
+                ) {
+                    Text(
+                        text = LocalStrings.current.colorTheme(it),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
