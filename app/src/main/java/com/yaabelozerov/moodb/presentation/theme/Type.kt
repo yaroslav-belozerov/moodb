@@ -37,15 +37,10 @@ private val bodyFamily = FontFamily(
 
 
 @OptIn(ExperimentalTextApi::class)
-private val extraFamily = FontFamily(
+val extraFamily = FontFamily(
     Font(R.font.doto, variationSettings = FontVariation.Settings(
         FontVariation.weight(900)
     ))
-)
-
-val extraStyle = TextStyle(
-    fontFamily = extraFamily,
-    fontSize = 26.sp
 )
 
 val MoodbTypography = Typography(

@@ -22,7 +22,7 @@ val LocalizationEN = Localization(
     ),
     welcomeTo = "Welcome to",
     chooseLanguage = "Choose language",
-    chooseIconTheme = "Choose icon theme",
+    chooseIconTheme = "Choose theme",
     today = "Today",
     edit = LocaleEdit(
         add = "Add",

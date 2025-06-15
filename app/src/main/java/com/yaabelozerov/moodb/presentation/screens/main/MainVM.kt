@@ -23,6 +23,12 @@ import java.time.OffsetTime
 import java.time.YearMonth
 import java.time.ZonedDateTime
 
+data class GroupedMonth(
+    val page: Int,
+    val monthName: String,
+    val hasRecords: Boolean
+)
+
 class MainVM(
     private val dao: RecordDao = MainApplication.recordDao
 ) : ViewModel() {
@@ -109,10 +115,12 @@ class MainVM(
         return LocalDateTime.from(month.atDay(day).atTime(hour, minute)).toInstant(ZonedDateTime.now().offset).toEpochMilli()
     }
 
-    fun getRecordsGroupedByYear(localeTag: String): Map<Int, List<Pair<Int, String>>> {
-        val mp = mutableMapOf<Int, List<Pair<Int, String>>>()
+    fun getRecordsGroupedByYear(localeTag: String): Map<Int, List<GroupedMonth>> {
+        val mp = mutableMapOf<Int, List<GroupedMonth>>()
         _records.value.keys.forEachIndexed { index, it ->
-            mp[it.year] = (mp[it.year] ?: emptyList()) + (index to it.month.display(localeTag))
+            mp[it.year] = (mp[it.year] ?: emptyList()) + GroupedMonth(index, it.month.display(localeTag),
+                _records.value[it]?.values?.isNotEmpty() == true
+            )
         }
         return mp
     }
