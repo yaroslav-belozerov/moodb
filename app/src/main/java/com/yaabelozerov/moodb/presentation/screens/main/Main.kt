@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -127,10 +128,11 @@ fun MainScreen(
                 editing = false
                 currentEdit = RecordEntity(0, pickerDate, DefaultMoodType.ANXIOUS, "")
             }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = LocalStrings.current.edit.add,
-                        modifier = Modifier.padding(top = 2.dp)
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(top = 3.dp)
                     )
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 }
@@ -161,7 +163,7 @@ fun MainScreen(
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
                                 text = current.key.year.toString(),
-                                fontSize = 16.sp,
+                                style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -254,14 +256,16 @@ fun MainScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 grouped[it]?.map {
-                                    Card(shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.clickable {
+                                    Card(shape = MaterialTheme.shapes.extraSmall, onClick = {
                                         scope.launch {
-                                            pager.animateScrollToPage(it.first)
+                                            pager.animateScrollToPage(it.page)
                                         }
                                         mapShown = false
-                                    }) {
+                                    }, colors = CardDefaults.cardColors(
+                                        containerColor = if (it.hasRecords) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                                    )) {
                                         Text(
-                                            modifier = Modifier.padding(8.dp), text = it.second
+                                            modifier = Modifier.padding(8.dp), text = it.monthName
                                         )
                                     }
                                 }
@@ -359,15 +363,15 @@ fun MainScreen(
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     TextButton(
                                         shape = MaterialTheme.shapes.extraSmall,
-                                        modifier = Modifier.padding(top = 2.dp),
+                                        modifier = Modifier.padding(top = 3.dp),
                                         onClick = {
                                             creating = false
                                         }) {
-                                        Text(text = LocalStrings.current.navigation.cancel)
+                                        Text(text = LocalStrings.current.navigation.cancel, style = MaterialTheme.typography.titleLarge)
                                     }
                                     Button(
                                         shape = MaterialTheme.shapes.extraSmall,
-                                        modifier = Modifier.padding(top = 2.dp),
+                                        modifier = Modifier.padding(top = 3.dp),
                                         onClick = {
                                             if (!editing) {
                                                 mvm.insertRecord(currentEdit!!) { month, year ->
@@ -386,7 +390,7 @@ fun MainScreen(
                                             }
                                             creating = false
                                         }) {
-                                        Text(text = LocalStrings.current.edit.save)
+                                        Text(text = LocalStrings.current.edit.save, style = MaterialTheme.typography.titleLarge)
                                     }
                                 }
                             }
@@ -401,7 +405,7 @@ fun MainScreen(
                             TextButton(shape = MaterialTheme.shapes.extraSmall, onClick = {
                                 pickerShown = false
                             }) {
-                                Text(text = LocalStrings.current.navigation.cancel)
+                                Text(text = LocalStrings.current.navigation.cancel, style = MaterialTheme.typography.titleLarge)
                             }
                         },
                         confirmButton = {
@@ -415,7 +419,7 @@ fun MainScreen(
                                         currentEdit?.copy(timestamp = picker.selectedDateMillis!!)
                                             ?: currentEdit
                                 }) {
-                                Text(text = LocalStrings.current.edit.save)
+                                Text(text = LocalStrings.current.edit.save, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 3.dp))
                             }
                         }) {
                         DatePicker(state = picker, headline = {

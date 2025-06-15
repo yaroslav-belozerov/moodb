@@ -74,6 +74,7 @@ import com.yaabelozerov.moodb.data.model.IconTheme
 import com.yaabelozerov.moodb.data.model.ThemeList
 import com.yaabelozerov.moodb.presentation.common.DualAsyncImage
 import com.yaabelozerov.moodb.presentation.common.TopBar
+import com.yaabelozerov.moodb.presentation.theme.extraFamily
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -167,7 +168,7 @@ fun DefaultTheme(
             )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = theme.name, fontSize = 32.sp)
+            Text(text = theme.name, fontFamily = extraFamily, fontSize = 36.sp)
             Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -226,7 +227,7 @@ fun CustomTheme(
                         .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(text = theme.name, fontSize = 32.sp, modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp))
+                        Text(text = theme.name, fontFamily = extraFamily, fontSize = 36.sp, modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp))
                         Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(32.dp))
                     }
                 } else {
@@ -257,7 +258,7 @@ fun CustomTheme(
                                         imageVector = Icons.Default.Check, contentDescription = null
                                     )
                                 }
-                            },
+                            }, textStyle = MaterialTheme.typography.titleLarge
                         )
                         IconButton(onClick = {
                             editing = false

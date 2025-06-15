@@ -1,10 +1,12 @@
 package com.yaabelozerov.moodb.presentation.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.yaabelozerov.moodb.R
@@ -31,6 +33,14 @@ private val bodyFamily = FontFamily(
     Font(R.font.overpass_semibolditalic, FontWeight.SemiBold, FontStyle.Italic),
     Font(R.font.overpass_extralight, FontWeight.SemiBold, FontStyle.Normal),
     Font(R.font.overpass_extralightitalic, FontWeight.SemiBold, FontStyle.Italic),
+)
+
+
+@OptIn(ExperimentalTextApi::class)
+val extraFamily = FontFamily(
+    Font(R.font.doto, variationSettings = FontVariation.Settings(
+        FontVariation.weight(900)
+    ))
 )
 
 val MoodbTypography = Typography(

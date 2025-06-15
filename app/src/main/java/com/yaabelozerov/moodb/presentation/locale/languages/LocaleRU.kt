@@ -21,8 +21,8 @@ val LocalizationRU = Localization(
         cancel = "Отменить",
     ),
     welcomeTo = "Добро пожаловать в",
-    chooseLanguage = "Выберите язык",
-    chooseIconTheme = "Выберите тему",
+    chooseLanguage = "Выбери язык",
+    chooseIconTheme = "Выбери тему",
     today = "Сегодня",
     edit = LocaleEdit(
         add = "Добавить",
@@ -62,4 +62,5 @@ val LocalizationRU = Localization(
             DefaultMoodType.OUTRAGED -> "Яростный"
         }
     }, theme = "Тема",
+    youCanAddThemeLater = "Свою тему можно создать позже",
 )

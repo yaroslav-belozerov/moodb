@@ -6,17 +6,25 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -34,6 +42,7 @@ import com.yaabelozerov.moodb.presentation.screens.settings.SettingsVM
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconTheme
 import com.yaabelozerov.moodb.presentation.screens.icontheme.IconThemeVM
 import com.yaabelozerov.moodb.presentation.screens.main.MainVM
+import com.yaabelozerov.moodb.presentation.theme.extraFamily
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,19 +94,23 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
             SettingsScreen(
                 routes = listOf(
                     MenuRoute(
-                        Icons.Default.Edit, LocalStrings.current.settings.moodTypes, ""
+                        Icons.Default.Edit, LocalStrings.current.settings.moodTypes, {}
                     ) {
                         navController.navigate(ND.SettingsMoodEditAll)
                         mevm.reloadMoods()
                     }, MenuRoute(
                         Icons.Default.Face,
                         LocalStrings.current.settings.iconTheme,
-                        currentTheme) {
+                        {
+                            Text(text = currentTheme, color = MaterialTheme.colorScheme.primary, fontFamily = extraFamily, style = MaterialTheme.typography.titleLarge)
+                        }) {
                         navController.navigate(ND.SettingsEditIconTheme)
                     }, MenuRoute(
-                        Icons.Default.LocationOn,
+                        Icons.Default.Language,
                         LocalStrings.current.settings.language,
-                        LocalStrings.current.localizedName,
+                        {
+                            Text(text = LocalStrings.current.localizedName, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 2.dp))
+                        },
                     ) {
                         scope.launch { sheetState.show() }
                     }), onBack = { navController.navigateUp() })

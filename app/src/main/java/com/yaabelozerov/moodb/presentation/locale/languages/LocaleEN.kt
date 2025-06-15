@@ -22,7 +22,7 @@ val LocalizationEN = Localization(
     ),
     welcomeTo = "Welcome to",
     chooseLanguage = "Choose language",
-    chooseIconTheme = "Choose icon theme",
+    chooseIconTheme = "Choose theme",
     today = "Today",
     edit = LocaleEdit(
         add = "Add",
@@ -62,5 +62,6 @@ val LocalizationEN = Localization(
             DefaultMoodType.OUTRAGED -> "Outraged"
         }
     },
-    theme = "Theme"
+    theme = "Theme",
+    youCanAddThemeLater = "You can create your own later",
 )

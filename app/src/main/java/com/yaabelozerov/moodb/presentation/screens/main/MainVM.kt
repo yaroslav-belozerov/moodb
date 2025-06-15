@@ -16,11 +16,18 @@ import java.time.ZoneId
 import javax.inject.Inject
 import com.yaabelozerov.moodb.util.display
 import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.MonthDay
 import java.time.OffsetTime
 import java.time.YearMonth
 import java.time.ZonedDateTime
+
+data class GroupedMonth(
+    val page: Int,
+    val monthName: String,
+    val hasRecords: Boolean
+)
 
 class MainVM(
     private val dao: RecordDao = MainApplication.recordDao
@@ -37,7 +44,6 @@ class MainVM(
                             val now = YearMonth.now()
                             put(now.minusMonths(1), emptyMap())
                             put(now, emptyMap())
-                            put(now.plusMonths(1), emptyMap())
                         }
                     }
                     return@collect
@@ -49,8 +55,12 @@ class MainVM(
                     Instant.ofEpochMilli(it.timestamp).atZone(zone).let { dt -> YearMonth.from(dt) }
                 }
 
-                val firstMonth = yearMonths.minOrNull() ?: return@collect
-                val lastMonth = yearMonths.maxOrNull() ?: return@collect
+                val firstMonth = yearMonths.minOrNull()
+                val lastMonth = yearMonths.maxOrNull()
+                if (firstMonth == null || lastMonth == null) {
+                    Timber.e("No first or last month, $yearMonths, $records")
+                    return@collect
+                }
 
                 val recordsByMonthDay: Map<YearMonth, Map<MonthDay, RecordEntity>> = records.groupBy { record ->
                     val dt = Instant.ofEpochMilli(record.timestamp).atZone(zone).toLocalDate()
@@ -105,10 +115,12 @@ class MainVM(
         return LocalDateTime.from(month.atDay(day).atTime(hour, minute)).toInstant(ZonedDateTime.now().offset).toEpochMilli()
     }
 
-    fun getRecordsGroupedByYear(localeTag: String): Map<Int, List<Pair<Int, String>>> {
-        val mp = mutableMapOf<Int, List<Pair<Int, String>>>()
+    fun getRecordsGroupedByYear(localeTag: String): Map<Int, List<GroupedMonth>> {
+        val mp = mutableMapOf<Int, List<GroupedMonth>>()
         _records.value.keys.forEachIndexed { index, it ->
-            mp[it.year] = (mp[it.year] ?: emptyList()) + (index to it.month.display(localeTag))
+            mp[it.year] = (mp[it.year] ?: emptyList()) + GroupedMonth(index, it.month.display(localeTag),
+                _records.value[it]?.values?.isNotEmpty() == true
+            )
         }
         return mp
     }

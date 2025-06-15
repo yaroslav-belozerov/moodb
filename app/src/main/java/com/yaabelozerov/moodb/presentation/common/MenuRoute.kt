@@ -1,5 +1,6 @@
 package com.yaabelozerov.moodb.presentation.common
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class Four<A, B, C, D>(
@@ -9,4 +10,9 @@ data class Four<A, B, C, D>(
     val fourth: D
 )
 
-typealias MenuRoute = Four<ImageVector, String, String, () -> Unit>
+data class MenuRoute(
+    val icon: ImageVector,
+    val name: String,
+    val details: @Composable () -> Unit,
+    val onClick: () -> Unit,
+)
