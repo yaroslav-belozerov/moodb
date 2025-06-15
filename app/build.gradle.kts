@@ -98,4 +98,5 @@ dependencies {
     ksp(libs.lyricist.processor)
     implementation(libs.timber)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.material.icons.extended)
 }

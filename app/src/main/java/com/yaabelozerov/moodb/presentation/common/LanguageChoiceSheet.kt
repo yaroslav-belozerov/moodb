@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import cafe.adriel.lyricist.LocalStrings
 import com.yaabelozerov.moodb.data.datastore.SK
 import com.yaabelozerov.moodb.di.MainApplication
 import com.yaabelozerov.moodb.presentation.locale.AvailableLocalizations
+import com.yaabelozerov.moodb.presentation.locale.setLocaleTag
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +47,7 @@ fun LanguageChoiceSheet(sheetState: SheetState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Default.LocationOn, contentDescription = null)
+                Icon(Icons.Default.Language, contentDescription = null)
                 Text(
                     LocalStrings.current.chooseLanguage,
                     style = MaterialTheme.typography.headlineLarge,
@@ -56,10 +58,8 @@ fun LanguageChoiceSheet(sheetState: SheetState) {
                 TextButton(
                     modifier = Modifier.fillMaxWidth(), onClick = {
                         scope.launch {
+                            setLocaleTag(it.localization.localeTag)
                             sheetState.hide()
-                            MainApplication.dataStoreManager.set(
-                                SK.LocaleTag, it.localization.localeTag
-                            )
                         }
                     }, shape = MaterialTheme.shapes.extraSmall
                 ) {

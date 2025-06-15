@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -95,7 +96,7 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
                         currentTheme) {
                         navController.navigate(ND.SettingsEditIconTheme)
                     }, MenuRoute(
-                        Icons.Default.LocationOn,
+                        Icons.Default.Language,
                         LocalStrings.current.settings.language,
                         LocalStrings.current.localizedName,
                     ) {

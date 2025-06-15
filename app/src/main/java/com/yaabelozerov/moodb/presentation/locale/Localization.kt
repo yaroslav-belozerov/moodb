@@ -50,7 +50,8 @@ data class Localization(
     val settings: LocaleSettings,
     val mood: LocaleMoodCategory,
     val moodType: (DefaultMoodType) -> String,
-    val theme: String
+    val theme: String,
+    val youCanAddThemeLater: String,
 )
 
 enum class AvailableLocalizations(val localization: Localization) {
