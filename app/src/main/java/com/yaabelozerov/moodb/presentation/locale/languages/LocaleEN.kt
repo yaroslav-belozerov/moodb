@@ -34,7 +34,7 @@ val LocalizationEN = Localization(
     settings = LocaleSettings(
         settings = "Settings",
         moodTypes = "Mood Types",
-        iconTheme = "Icon Theme",
+        iconTheme = "Icons",
         language = "Language",
         colorTheme = "Colors",
     ),
@@ -72,7 +72,7 @@ val LocalizationEN = Localization(
             ColorSchemes.Light -> "Light"
             ColorSchemes.Dark -> "Dark"
             ColorSchemes.Adapt -> "Adaptive"
-            ColorSchemes.Green -> "Green"
+            ColorSchemes.Green -> "Frog"
         }
     }
 )

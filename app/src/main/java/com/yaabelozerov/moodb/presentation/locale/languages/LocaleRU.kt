@@ -19,7 +19,7 @@ val LocalizationRU = Localization(
         next = "Далее",
         finish = "Готово",
         close = "Закрыть",
-        cancel = "Отменить",
+        cancel = "Отмена",
     ),
     welcomeTo = "Добро пожаловать в",
     chooseLanguage = "Выбери язык",
@@ -34,7 +34,7 @@ val LocalizationRU = Localization(
     settings = LocaleSettings(
         settings = "Настройки",
         moodTypes = "Типы настроения",
-        iconTheme = "Тема иконок",
+        iconTheme = "Иконки",
         language = "Язык",
         colorTheme = "Цвета",
     ),
@@ -68,10 +68,10 @@ val LocalizationRU = Localization(
     youCanAddThemeLater = "Свою тему можно создать позже",
     colorTheme = {
         when (it) {
-            ColorSchemes.Light -> "Светлая"
-            ColorSchemes.Dark -> "Темная"
+            ColorSchemes.Light -> "Светло"
+            ColorSchemes.Dark -> "Темно"
             ColorSchemes.Adapt -> "Авто"
-            ColorSchemes.Green -> "Зелёная"
+            ColorSchemes.Green -> "Лягушка"
         }
     }
 )

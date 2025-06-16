@@ -244,13 +244,12 @@ private fun WelcomeLanguage(
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            val sheetState = rememberModalBottomSheetState()
-            val scope = rememberCoroutineScope()
+            var isSheetOpen by remember { mutableStateOf(false) }
             TextButton(
-                onClick = { scope.launch { sheetState.show() } },
+                onClick = { isSheetOpen = true },
                 shape = MaterialTheme.shapes.extraSmall
             ) {
-                LanguageChoiceSheet(sheetState)
+                LanguageChoiceSheet(isSheetOpen) { isSheetOpen = false }
                 Icon(Icons.Default.Language, contentDescription = null)
                 Text(
                     text = LocalStrings.current.localizedName,

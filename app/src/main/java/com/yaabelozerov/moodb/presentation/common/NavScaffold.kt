@@ -20,7 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -88,10 +91,14 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
         popExitTransition = { slideOutVertically(targetOffsetY = { it }) }
     ) {
         composable<ND.SettingsRoot> {
-            val sheetState = rememberModalBottomSheetState()
-            val colorSheet = rememberModalBottomSheetState()
+            var languageSheetOpen by remember {
+                mutableStateOf(false)
+            }
+            var colorSheetOpen by remember {
+                mutableStateOf(false)
+            }
             val scope = rememberCoroutineScope()
-            LanguageChoiceSheet(sheetState)
+            LanguageChoiceSheet(languageSheetOpen) { languageSheetOpen = false }
             val currentTheme = itsvm.currentTheme.collectAsState().value
             SettingsScreen(
                 routes = listOf(
@@ -113,11 +120,11 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
                         details = {
                             val currName by MainApplication.dataStoreManager.get(SK.Theme).collectAsState("")
                             val curr = ColorSchemes.entries.find { it.key == currName } ?: ColorSchemes.Light
-                            ThemeChoiceSheet(colorSheet)
+                            ThemeChoiceSheet(colorSheetOpen) { colorSheetOpen = false }
                             Text(text = LocalStrings.current.colorTheme(curr), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 2.dp))
                         },
                         onClick = { scope.launch {
-                            colorSheet.show()
+                            colorSheetOpen = true
                         } }
                     ), MenuRoute(
                         Icons.Default.Language,
@@ -126,7 +133,7 @@ fun NavGraphBuilder.settingsGraph(itsvm: IconThemeVM, mevm: MoodEditVM, svm: Set
                             Text(text = LocalStrings.current.localizedName, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 2.dp))
                         },
                     ) {
-                        scope.launch { sheetState.show() }
+                        languageSheetOpen = true
                     }), onBack = { navController.navigateUp() })
         }
 

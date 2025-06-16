@@ -35,6 +35,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -75,7 +77,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainScreen(
     navController: NavHostController,
@@ -248,7 +250,7 @@ fun MainScreen(
                             Text(
                                 text = it.toString(),
                                 fontSize = 24.sp,
-                                color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inversePrimary
+                                color = Color.White
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             FlowRow(
@@ -310,7 +312,7 @@ fun MainScreen(
                                             date.month.display(
                                                 LocalStrings.current.localeTag, TextStyle.FULL
                                             )
-                                        }"
+                                        } ${if (date.year != LocalDate.now().year) date.year else ""}"
                                     }, fontSize = 32.sp
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
@@ -356,7 +358,8 @@ fun MainScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = null
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error
                                     )
                                 }
                                 Spacer(modifier = Modifier.weight(1f))
@@ -367,7 +370,7 @@ fun MainScreen(
                                         onClick = {
                                             creating = false
                                         }) {
-                                        Text(text = LocalStrings.current.navigation.cancel, style = MaterialTheme.typography.titleLarge)
+                                        Text(text = LocalStrings.current.navigation.cancel, style = MaterialTheme.typography.titleMediumEmphasized)
                                     }
                                     Button(
                                         shape = MaterialTheme.shapes.extraSmall,
@@ -390,7 +393,7 @@ fun MainScreen(
                                             }
                                             creating = false
                                         }) {
-                                        Text(text = LocalStrings.current.edit.save, style = MaterialTheme.typography.titleLarge)
+                                        Text(text = LocalStrings.current.edit.save, style = MaterialTheme.typography.titleMedium)
                                     }
                                 }
                             }
@@ -405,7 +408,7 @@ fun MainScreen(
                             TextButton(shape = MaterialTheme.shapes.extraSmall, onClick = {
                                 pickerShown = false
                             }) {
-                                Text(text = LocalStrings.current.navigation.cancel, style = MaterialTheme.typography.titleLarge)
+                                Text(text = LocalStrings.current.navigation.cancel, style = MaterialTheme.typography.titleMedium)
                             }
                         },
                         confirmButton = {
@@ -419,7 +422,7 @@ fun MainScreen(
                                         currentEdit?.copy(timestamp = picker.selectedDateMillis!!)
                                             ?: currentEdit
                                 }) {
-                                Text(text = LocalStrings.current.edit.save, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 3.dp))
+                                Text(text = LocalStrings.current.edit.save, style = MaterialTheme.typography.titleMediumEmphasized, modifier = Modifier.padding(top = 3.dp))
                             }
                         }) {
                         DatePicker(state = picker, headline = {
@@ -440,7 +443,7 @@ fun MainScreen(
                                         date.month.display(
                                             LocalStrings.current.localeTag, TextStyle.FULL
                                         )
-                                    }"
+                                    } ${if (date.year == LocalDate.now().year) "" else date.year}"
                                 },
                                 fontSize = 32.sp,
                                 style = MaterialTheme.typography.titleLarge,

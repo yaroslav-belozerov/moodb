@@ -16,6 +16,8 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,11 +33,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageChoiceSheet(sheetState: SheetState) {
+fun LanguageChoiceSheet(visible: Boolean, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
-    if (sheetState.isVisible) ModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { scope.launch { sheetState.hide() } },
+    if (visible) ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column(
@@ -58,8 +59,8 @@ fun LanguageChoiceSheet(sheetState: SheetState) {
                 TextButton(
                     modifier = Modifier.fillMaxWidth(), onClick = {
                         scope.launch {
+                            onDismiss()
                             setLocaleTag(it.localization.localeTag)
-                            sheetState.hide()
                         }
                     }, shape = MaterialTheme.shapes.extraSmall
                 ) {
@@ -79,11 +80,10 @@ fun LanguageChoiceSheet(sheetState: SheetState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThemeChoiceSheet(sheetState: SheetState) {
+fun ThemeChoiceSheet(isVisible: Boolean, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
-    if (sheetState.isVisible) ModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { scope.launch { sheetState.hide() } },
+    if (isVisible) ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column(
@@ -106,8 +106,8 @@ fun ThemeChoiceSheet(sheetState: SheetState) {
                 TextButton(
                     modifier = Modifier.fillMaxWidth(), onClick = {
                         scope.launch {
+                            onDismiss()
                             MainApplication.dataStoreManager.set(SK.Theme, it.key)
-                            sheetState.hide()
                         }
                     }, shape = MaterialTheme.shapes.extraSmall
                 ) {
