@@ -240,7 +240,6 @@ fun MainScreen(
             VerticalPager(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .padding(end = if (isLayoutExpanded()) 24.dp else 0.dp), state = pager
             ) { page ->
                 val cur by remember(records) {
@@ -276,14 +275,9 @@ fun MainContent(
     ic: Map<DefaultMoodType, DualImageResource>?,
     mvm: MainVM,
 ) {
-    val isLayoutExpanded = currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
-        WIDTH_DP_EXPANDED_LOWER_BOUND
-    )
     cur?.let { current ->
-        if (isLayoutExpanded) {
-            Row {
-                MainCalendar(current, onClick, ic, mvm)
-            }
+        if (isLayoutExpanded()) {
+            MainCalendar(current, onClick, ic, mvm)
         } else {
             Column {
                 Row(
@@ -320,13 +314,13 @@ fun MainCalendar(
 ) {
     FlowRow(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(4.dp, 0.dp),
         maxItemsInEachRow = 7,
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = if (isLayoutExpanded()) Arrangement.spacedBy(8.dp) else Arrangement.SpaceBetween
     ) {
-        for (i in 1..LocalDate.from(current.key.atDay(1)).dayOfWeek.value) {
+        for (i in 1..(LocalDate.from(current.key.atDay(1)).dayOfWeek.value.takeIf { it != 7 } ?: 0)) {
             Box(
                 modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center
             ) {}
@@ -363,7 +357,7 @@ fun MainCalendar(
             }
 
         }
-        for (i in 1..(7 - LocalDate.from(current.key.atEndOfMonth()).dayOfWeek.value)) {
+        for (i in 1..((7 - LocalDate.from(current.key.atEndOfMonth()).dayOfWeek.value).takeIf { it != 7 } ?: 0)) {
             Box(
                 modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center
             ) {}
@@ -390,7 +384,7 @@ fun ChosenDateDialog(
     Dialog(onDismissRequest = {
         changeState(ChosenDateState.None)
     }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Card(shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.padding(horizontal = 64.dp)) {
+        Card(shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.padding(horizontal = 32.dp)) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
