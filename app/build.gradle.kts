@@ -99,4 +99,5 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.material3.adaptive.navigation)
 }
