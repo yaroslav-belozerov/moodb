@@ -20,12 +20,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -64,11 +67,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
@@ -89,6 +95,11 @@ import java.time.MonthDay
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.TextStyle
+
+@Composable
+fun isLayoutExpanded(): Boolean = currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
+    WIDTH_DP_EXPANDED_LOWER_BOUND
+)
 
 sealed interface ChosenDateState {
     data object None : ChosenDateState
@@ -127,16 +138,13 @@ fun MainScreen(
             pager.scrollToPage(lastIndex)
         }
     }
-    val isLayoutExpanded = currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
-        WIDTH_DP_EXPANDED_LOWER_BOUND
-    )
     val cur by remember(records, pager.currentPage) {
         mutableStateOf(
             records.entries.toList().getOrNull(pager.currentPage)
         )
     }
     Scaffold(bottomBar = {
-        if (!isLayoutExpanded) BottomAppBar(actions = {
+        if (!isLayoutExpanded()) BottomAppBar(actions = {
             IconButton(onClick = { navController.navigate(ND.SettingsRoot) }) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             }
@@ -171,8 +179,10 @@ fun MainScreen(
             }
         }, contentPadding = PaddingValues(16.dp))
     }) { innerPadding ->
-        Row(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-            if (isLayoutExpanded) {
+        Row(modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize()) {
+            if (isLayoutExpanded()) {
                 cur?.let { current ->
                     Column(
                         modifier = Modifier
@@ -230,7 +240,8 @@ fun MainScreen(
             VerticalPager(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding).padding(end = if (isLayoutExpanded) 24.dp else 0.dp), state = pager
+                    .padding(innerPadding)
+                    .padding(end = if (isLayoutExpanded()) 24.dp else 0.dp), state = pager
             ) { page ->
                 val cur by remember(records) {
                     mutableStateOf(
@@ -378,8 +389,8 @@ fun ChosenDateDialog(
 
     Dialog(onDismissRequest = {
         changeState(ChosenDateState.None)
-    }) {
-        Card(shape = MaterialTheme.shapes.extraSmall) {
+    }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Card(shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.padding(horizontal = 64.dp)) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -419,7 +430,7 @@ fun ChosenDateDialog(
                 }
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    maxItemsInEachRow = 4,
+                    maxItemsInEachRow = if (isLayoutExpanded()) 8 else 4,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     DefaultMoodType.entries.map {
@@ -478,18 +489,10 @@ fun ChosenDateDialog(
                             shape = MaterialTheme.shapes.extraSmall,
                             modifier = Modifier.padding(top = 3.dp),
                             onClick = {
-                                if (!state.isEditing()) {
-                                    mvm.insertRecord(state.record) { month, year ->
-//                                                    val key =
-//                                                        records.find { it.first.month.value == month && it.first.year == year }
-//                                                    withContext(scope.coroutineContext) {
-//                                                        if (key != null) pager.animateScrollToPage(
-//                                                            records.indexOfFirst { key == it } - 1
-//                                                        )
-//                                                    }
-                                    }
-                                } else {
-                                    state.record.run {
+                                state.record.run {
+                                    if (!state.isEditing()) {
+                                        mvm.insertRecord(this)
+                                    } else {
                                         mvm.modifyRecord(
                                             recordId, type
                                         )
@@ -550,7 +553,11 @@ fun PickDate(choosing: ChosenDateState.ChoosingDate?, setState: (ChosenDateState
                 )
             }
         }) {
-        DatePicker(state = picker, headline = {
+        DatePicker(state = picker, modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(
+                rememberScrollState()
+            ), headline = {
             val date by remember {
                 derivedStateOf {
                     Instant.ofEpochMilli(
