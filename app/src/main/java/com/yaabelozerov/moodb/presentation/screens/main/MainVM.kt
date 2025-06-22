@@ -91,22 +91,12 @@ class MainVM(
         }
     }
 
-    fun substituteTime(timestamp: Long): Long {
-        val z = ZoneId.systemDefault()
-        val local = Instant.ofEpochMilli(timestamp).atZone(z).toLocalDateTime()
-        val now = LocalDateTime.now()
-        return now.withYear(local.year).withMonth(local.month.value)
-            .withDayOfMonth(local.dayOfMonth).toInstant(OffsetTime.now().offset).toEpochMilli()
-    }
-
     fun insertRecord(
-        currentEdit: RecordEntity, callback: suspend (Int, Int) -> Unit = { _, _ -> }
+        currentEdit: RecordEntity
     ) {
         viewModelScope.launch {
             dao.insertRecord(currentEdit)
-            val d = Instant.ofEpochMilli(currentEdit.timestamp).atZone(ZoneId.systemDefault())
             groupRecordsByMonthDay()
-            callback(d.month.value, d.year)
         }
     }
 
