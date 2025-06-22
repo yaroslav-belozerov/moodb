@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.PagerState
@@ -43,6 +47,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import cafe.adriel.lyricist.LocalStrings
 import com.yaabelozerov.moodb.data.icons.DualImageResource
 import com.yaabelozerov.moodb.data.model.DefaultMoodType
@@ -119,8 +127,16 @@ fun MainScreen(
             pager.scrollToPage(lastIndex)
         }
     }
+    val isLayoutExpanded = currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
+        WIDTH_DP_EXPANDED_LOWER_BOUND
+    )
+    val cur by remember(records, pager.currentPage) {
+        mutableStateOf(
+            records.entries.toList().getOrNull(pager.currentPage)
+        )
+    }
     Scaffold(bottomBar = {
-        BottomAppBar(actions = {
+        if (!isLayoutExpanded) BottomAppBar(actions = {
             IconButton(onClick = { navController.navigate(ND.SettingsRoot) }) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             }
@@ -155,30 +171,88 @@ fun MainScreen(
             }
         }, contentPadding = PaddingValues(16.dp))
     }) { innerPadding ->
-        VerticalPager(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding), state = pager
-        ) { page ->
-            val cur by remember(records) {
-                mutableStateOf(
-                    records.entries.toList().getOrNull(page)
-                )
+        Row(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            if (isLayoutExpanded) {
+                cur?.let { current ->
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp, 16.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .clickable { chosenState = ChosenDateState.MapOpen }
+//                    .clickable { mapShown = true }
+                        .padding(16.dp, 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = current.key.month.display(LocalStrings.current.localeTag),
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = current.key.year.toString(),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        AnimatedVisibility(lastIndex != pager.currentPage) {
+                            IconButton(onClick = {
+                                scope.launch {
+                                    pager.animateScrollToPage(lastIndex)
+                                }
+                            }) {
+                                Icon(imageVector = Icons.Default.Home, contentDescription = null)
+                            }
+                        }
+                        IconButton(onClick = { navController.navigate(ND.SettingsRoot) }) {
+                            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+                        }
+                        Button(shape = MaterialTheme.shapes.extraSmall, onClick = {
+                            chosenState = ChosenDateState.DateDialog.Creating(
+                                RecordEntity(
+                                    0, System.currentTimeMillis(), DefaultMoodType.ANXIOUS, ""
+                                )
+                            )
+                        }, modifier = Modifier.padding(top = 4.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = LocalStrings.current.edit.add,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.padding(top = 3.dp)
+                                )
+                                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            }
+                        }
+                    }
+                }
             }
-            MainContent(cur = cur, onClick = { chosenState = it }, ic = ic, mvm = mvm)
+            VerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding).padding(end = if (isLayoutExpanded) 24.dp else 0.dp), state = pager
+            ) { page ->
+                val cur by remember(records) {
+                    mutableStateOf(
+                        records.entries.toList().getOrNull(page)
+                    )
+                }
+                MainContent(
+                    cur = cur,
+                    onClick = { chosenState = it },
+                    ic = ic,
+                    mvm = mvm)
 
-            when (chosenState) {
-                is ChosenDateState.DateDialog, is ChosenDateState.ChoosingDate -> ChosenDateDialog(
-                    chosenDateState = chosenState,
-                    changeState = { chosenState = it },
-                    mvm,
-                    ic
-                )
+                when (chosenState) {
+                    is ChosenDateState.DateDialog, is ChosenDateState.ChoosingDate -> ChosenDateDialog(
+                        chosenDateState = chosenState, changeState = { chosenState = it }, mvm, ic
+                    )
 
-                ChosenDateState.MapOpen -> MapDialog(
-                    mvm, pager, scope, onDismiss = { chosenState = ChosenDateState.None })
+                    ChosenDateState.MapOpen -> MapDialog(
+                        mvm, pager, scope, onDismiss = { chosenState = ChosenDateState.None })
 
-                ChosenDateState.None -> {}
+                    ChosenDateState.None -> {}
+                }
             }
         }
     }
@@ -189,102 +263,99 @@ fun MainContent(
     cur: Map.Entry<YearMonth, Map<MonthDay, RecordEntity>>?,
     onClick: (ChosenDateState) -> Unit,
     ic: Map<DefaultMoodType, DualImageResource>?,
-    mvm: MainVM
+    mvm: MainVM,
 ) {
     val isLayoutExpanded = currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
-        WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND
+        WIDTH_DP_EXPANDED_LOWER_BOUND
     )
     cur?.let { current ->
         if (isLayoutExpanded) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp, 16.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable { onClick(ChosenDateState.MapOpen) }
-//                    .clickable { mapShown = true }
-                .padding(16.dp, 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = current.key.month.display(LocalStrings.current.localeTag),
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = current.key.year.toString(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            Row {
+                MainCalendar(current, onClick, ic, mvm)
             }
         } else {
-            Row(
-                modifier = Modifier
-                    .padding(16.dp, 16.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable { onClick(ChosenDateState.MapOpen) }
-                    .padding(16.dp, 16.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = current.key.month.display(LocalStrings.current.localeTag),
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = current.key.year.toString(),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            Column {
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp, 16.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { onClick(ChosenDateState.MapOpen) }
+                        .padding(16.dp, 16.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = current.key.month.display(LocalStrings.current.localeTag),
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = current.key.year.toString(),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                MainCalendar(current, onClick, ic, mvm)
             }
         }
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp, 0.dp),
-            maxItemsInEachRow = 7,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            for (i in 1..LocalDate.from(current.key.atDay(1)).dayOfWeek.value) {
-                Box(
-                    modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center
-                ) {}
-            }
-            (1..current.key.lengthOfMonth()).map { dayOfMonth ->
-                current.value.entries.find { it.key.dayOfMonth == dayOfMonth }?.let { rec ->
-                    DualAsyncImage(
-                        imageModifier = Modifier
-                            .size(52.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                            .clickable {
-                                onClick(ChosenDateState.DateDialog.Editing(rec.value))
-                            }, dualIconResource = ic?.get(rec.value.type) ?: return@map
-                    )
-                } ?: Box(
-                    modifier = Modifier
+    }
+}
+
+@Composable
+fun MainCalendar(
+    current: Map.Entry<YearMonth, Map<MonthDay, RecordEntity>>,
+    onClick: (ChosenDateState) -> Unit,
+    ic: Map<DefaultMoodType, DualImageResource>?,
+    mvm: MainVM
+) {
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp, 0.dp),
+        maxItemsInEachRow = 7,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        for (i in 1..LocalDate.from(current.key.atDay(1)).dayOfWeek.value) {
+            Box(
+                modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center
+            ) {}
+        }
+        (1..current.key.lengthOfMonth()).map { dayOfMonth ->
+            current.value.entries.find { it.key.dayOfMonth == dayOfMonth }?.let { rec ->
+                DualAsyncImage(
+                    imageModifier = Modifier
                         .size(52.dp)
                         .clip(MaterialTheme.shapes.medium)
                         .clickable {
-                            onClick(
-                                ChosenDateState.DateDialog.Creating(
-                                    RecordEntity(
-                                        0, mvm.getTimestampForNewRecord(
-                                            current.key, dayOfMonth
-                                        ), DefaultMoodType.ANXIOUS, ""
-                                    )
+                            onClick(Editing(rec.value))
+                        }, dualIconResource = ic?.get(rec.value.type) ?: return@map
+                )
+            } ?: Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .clickable {
+                        onClick(
+                            ChosenDateState.DateDialog.Creating(
+                                RecordEntity(
+                                    0, mvm.getTimestampForNewRecord(
+                                        current.key, dayOfMonth
+                                    ), DefaultMoodType.ANXIOUS, ""
                                 )
                             )
-                        }, contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = dayOfMonth.toString(), textAlign = TextAlign.Center
-                    )
-                }
+                        )
+                    }, contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = dayOfMonth.toString(), textAlign = TextAlign.Center
+                )
+            }
 
-            }
-            for (i in 1..(7 - LocalDate.from(current.key.atEndOfMonth()).dayOfWeek.value)) {
-                Box(
-                    modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center
-                ) {}
-            }
+        }
+        for (i in 1..(7 - LocalDate.from(current.key.atEndOfMonth()).dayOfWeek.value)) {
+            Box(
+                modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center
+            ) {}
         }
     }
 }
